@@ -113,6 +113,7 @@ export default function App() {
     return (
       <div className="container mx-auto p-4 space-y-4">
         <h1 className="text-2xl font-bold">Game Over</h1>
+        <div className="text-gray-600">You are: {playerName}</div>
         <ol className="list-decimal pl-4">
           {rankings.map((n, i) => (
             <li key={n}>{i + 1}. {n}</li>
@@ -188,6 +189,7 @@ export default function App() {
     return (
       <div className="container mx-auto p-4 space-y-4">
         <h1 className="text-2xl font-bold">Lobby</h1>
+        <div className="text-gray-600">You are: {playerName}</div>
         <div>Players: {currentLobby.players.join(', ')}</div>
         {currentLobby.hostId === socket.id ? (
           <button
@@ -207,6 +209,7 @@ export default function App() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Thirteen Game</h1>
+      <div className="text-gray-600 mb-2">You are: {playerName}</div>
 
       {state && (
         <div className="mb-4 space-y-2">
