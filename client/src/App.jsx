@@ -492,11 +492,11 @@ export default function App() {
           })}
         </div>
         <div
-          className={`absolute z-30 ${
+          className={`${
             isMobile
-              ? 'left-1/2 -translate-x-1/2 bottom-36'
-              : 'right-2 bottom-2 sm:bottom-4'
-          } flex flex-col items-center`}
+              ? 'absolute left-1/2 -translate-x-1/2 bottom-36'
+              : 'fixed right-2 bottom-2 sm:bottom-4'
+          } z-30 flex flex-col items-center`}
         >
           <div className="flex flex-row gap-2">
             <button
@@ -530,7 +530,7 @@ export default function App() {
         </>
       )}
       {state && (
-        <div className="fixed bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 text-gray-800">
+        <div className="fixed bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 text-gray-800 z-40">
           <div
             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold ${myTurn ? 'glowing-turn' : ''}`}
             style={{ backgroundColor: avatarColor(playerName) }}
