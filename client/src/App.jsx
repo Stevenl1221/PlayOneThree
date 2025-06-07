@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { io } from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
@@ -445,12 +446,13 @@ export default function App() {
                       const tilt = -angle * 0.5;
                       const selectedClass = selected.includes(i) ? '-translate-y-8' : '';
                       return (
-                        <img
+                        <motion.img
                           key={i}
                           src={cardImageUrl(c)}
                           alt={cardDisplay(c)}
                           onClick={() => toggleCard(i)}
-                          className={`w-20 absolute transition-transform drop-shadow-lg cursor-pointer ${selectedClass}`}
+                          whileHover={{ translateY: -16 }}
+                          className={`w-20 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 ${selectedClass}`}
                           style={{
                             transform: `translate(-50%,0) rotateY(${tilt}deg) rotate(${angle}deg)`,
                             left: `${((i+1)/(hand.length+1))*100}%`
