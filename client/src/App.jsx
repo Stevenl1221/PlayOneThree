@@ -241,7 +241,7 @@ export default function App() {
       case 'left':
         return 'left-2 sm:left-4 top-1/2 -translate-y-1/2 flex flex-col items-center';
       case 'top':
-        return 'top-2 sm:top-4 left-1/2 -translate-x-1/2 flex flex-col items-center';
+        return 'top-2 sm:top-6 md:top-8 left-1/2 -translate-x-1/2 flex flex-col items-center';
       case 'right':
         return 'right-2 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col items-center';
       default:
