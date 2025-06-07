@@ -409,7 +409,6 @@ export default function App() {
       {state && (
         <>
         <div className="relative mx-auto w-full max-w-md sm:max-w-lg md:max-w-4xl h-[22rem] sm:h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
-          <img src={CARD_BACK} alt="Deck" className="absolute w-16 left-4 top-1/2 -translate-y-1/2" />
           {state.lastPlay && (
             state.lastPlay.cards.map((c, i, arr) => {
               const offset = i - (arr.length - 1) / 2;
