@@ -126,6 +126,16 @@ export default function App() {
     socket.emit('startGame');
   };
 
+  const leaveLobby = () => {
+    socket.emit('leaveLobby');
+    setCurrentLobby(null);
+    setState(null);
+    setHand([]);
+    setSelected([]);
+    setRankings(null);
+    socket.emit('listLobbies');
+  };
+
   const myTurn = state && state.currentTurn === playerName;
 
   if (rankings) {
@@ -152,6 +162,14 @@ export default function App() {
             className="px-4 py-2 bg-green-500 text-white rounded"
           >
             Start New Game
+          </button>
+        )}
+        {currentLobby && (
+          <button
+            onClick={leaveLobby}
+            className="px-4 py-2 bg-red-500 text-white rounded"
+          >
+            Leave Lobby
           </button>
         )}
       </div>
@@ -229,6 +247,12 @@ export default function App() {
         ) : (
           <div>Waiting for {currentLobby.hostName} to start the game...</div>
         )}
+        <button
+          onClick={leaveLobby}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Leave Lobby
+        </button>
       </div>
     );
   }
@@ -299,6 +323,12 @@ export default function App() {
           Sort Hand
         </button>
       </div>
+      <button
+        onClick={leaveLobby}
+        className="fixed bottom-4 right-4 px-4 py-2 bg-red-500 text-white rounded"
+      >
+        Leave Lobby
+      </button>
     </div>
   );
 }
