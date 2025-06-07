@@ -209,7 +209,16 @@ export default function App() {
           </div>
           {state.lastPlay && (
             <div>
-              Last play: {state.lastPlay.player} - {state.lastPlay.cards.map(cardDisplay).join(' ')}
+              Last play: {state.lastPlay.player} -{' '}
+              {state.lastPlay.cards.map((c, i) => (
+                <span
+                  key={i}
+                  className={['d', 'h'].includes(c.suit) ? 'text-red-600 font-semibold' : 'text-black font-semibold'}
+                >
+                  {cardDisplay(c)}
+                  {i < state.lastPlay.cards.length - 1 ? ' ' : ''}
+                </span>
+              ))}
             </div>
           )}
         </div>
