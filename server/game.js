@@ -113,17 +113,23 @@ class Player {
     this.socket = socket;
     this.name = name;
     this.hand = [];
+    this.finished = false;
   }
 }
 
 class Game {
   constructor() {
     this.players = [];
+    this.activePlayers = [];
     this.turnIndex = 0;
     this.currentSet = null; // last played set
     this.pile = [];
     this.passCount = 0; // number of consecutive passes
     this.lastPlayIndex = null; // index of player who last played
+    this.rankings = [];
+    this.ready = new Set();
+    this.gameActive = false;
+    this.waitingForReady = false;
   }
 
   addPlayer(socket, name) {
@@ -132,23 +138,43 @@ class Game {
     this.players.push(player);
     socket.emit('joined', {name: player.name});
     this.broadcastState();
-
-    if (this.players.length >= 2) {
+    if (!this.gameActive && !this.waitingForReady && this.players.length >= 2) {
       this.start();
     }
   }
 
   removePlayer(socket) {
+    const player = this.players.find(p => p.socket === socket);
+    if (!player) return;
     this.players = this.players.filter(p => p.socket !== socket);
-    this.broadcastState();
+    const idx = this.activePlayers.indexOf(player);
+    if (idx !== -1) {
+      this.activePlayers.splice(idx, 1);
+      if (this.turnIndex >= this.activePlayers.length) this.turnIndex = 0;
+    }
+    this.ready.delete(player.name);
+    if (this.gameActive && this.activePlayers.length === 1) {
+      this.rankings.push(this.activePlayers[0].name);
+      this.endGame();
+    } else {
+      this.broadcastState();
+      if (this.waitingForReady) this.broadcastReadyState();
+    }
   }
 
   start() {
     const deck = shuffle(createDeck());
+    this.rankings = [];
+    this.ready.clear();
+    this.gameActive = true;
+    this.waitingForReady = false;
+    this.activePlayers = [...this.players];
     for (let i = 0; i < this.players.length; i++) {
-      this.players[i].hand = deck.slice(i * 13, (i + 1) * 13);
-      this.players[i].socket.emit('start', { hand: this.players[i].hand });
-      this.players[i].socket.emit('hand', { hand: this.players[i].hand });
+      const p = this.players[i];
+      p.hand = deck.slice(i * 13, (i + 1) * 13);
+      p.finished = false;
+      p.socket.emit('start', { hand: p.hand });
+      p.socket.emit('hand', { hand: p.hand });
     }
 
     // determine starting player (lowest card)
@@ -169,7 +195,7 @@ class Game {
     lpHand.splice(remIdx, 1);
     this.currentSet = { cards: [lowCard], player: this.players[lowPlayer].name, type: 'single', highest: lowCard };
     this.lastPlayIndex = lowPlayer;
-    this.turnIndex = (lowPlayer + 1) % this.players.length;
+    this.turnIndex = (lowPlayer + 1) % this.activePlayers.length;
     this.passCount = 0;
 
     // send updated hand for starting player
@@ -188,7 +214,7 @@ class Game {
       return;
     }
 
-    const idx = this.players.indexOf(player);
+    const idx = this.activePlayers.indexOf(player);
     // remove cards from hand
     cards.forEach(card => {
       const i = player.hand.findIndex(c => c.rank === card.rank && c.suit === card.suit);
@@ -199,23 +225,26 @@ class Game {
     this.lastPlayIndex = idx;
     this.passCount = 0;
 
-    let nextIndex = (idx + 1) % this.players.length;
+    let nextIndex = (idx + 1) % this.activePlayers.length;
 
     if (player.hand.length === 0) {
+      player.finished = true;
       player.socket.emit('finished');
-      this.players.splice(idx, 1);
+      this.rankings.push(player.name);
+      this.activePlayers.splice(idx, 1);
       if (nextIndex > idx) nextIndex--;
-      if (this.lastPlayIndex >= this.players.length) {
-        this.lastPlayIndex = this.players.length ? this.lastPlayIndex % this.players.length : 0;
+      if (this.lastPlayIndex >= this.activePlayers.length) {
+        this.lastPlayIndex = this.activePlayers.length ? this.lastPlayIndex % this.activePlayers.length : 0;
       }
     }
 
-    if (this.players.length === 1) {
-      this.endGame(this.players[0]);
+    if (this.activePlayers.length === 1) {
+      this.rankings.push(this.activePlayers[0].name);
+      this.endGame();
       return;
     }
 
-    this.turnIndex = nextIndex % this.players.length;
+    this.turnIndex = nextIndex % this.activePlayers.length;
     this.broadcastState();
   }
 
@@ -223,12 +252,12 @@ class Game {
     const player = this.players.find(p => p.socket === socket);
     if (!player || !this.isPlayerTurn(player)) return;
     this.passCount++;
-    const nextIndex = (this.turnIndex + 1) % this.players.length;
+    const nextIndex = (this.turnIndex + 1) % this.activePlayers.length;
 
     if (!this.currentSet) {
       this.turnIndex = nextIndex;
       this.passCount = 0;
-    } else if (this.passCount >= this.players.length - 1) {
+    } else if (this.passCount >= this.activePlayers.length - 1) {
       // Everyone passed - clear current set and give turn to last winner
       this.currentSet = null;
       this.passCount = 0;
@@ -241,7 +270,7 @@ class Game {
   }
 
   isPlayerTurn(player) {
-    return this.players[this.turnIndex] === player;
+    return this.activePlayers[this.turnIndex] === player;
   }
 
   validatePlay(cards) {
@@ -260,21 +289,45 @@ class Game {
     return null;
   }
 
-  endGame(loser) {
-    this.players.forEach(p => p.socket.emit('gameOver', { loser: loser.name }));
-    this.players = [];
+  endGame() {
+    this.gameActive = false;
+    this.waitingForReady = true;
+    const rankings = this.rankings.slice();
+    this.players.forEach(p => {
+      p.socket.emit('gameOver', { rankings });
+      p.hand = [];
+      p.finished = false;
+    });
+    this.activePlayers = [];
+    this.broadcastReadyState();
   }
 
   broadcastState() {
     const state = {
       players: this.players.map(p => ({name: p.name, handCount: p.hand.length})),
-      currentTurn: this.players[this.turnIndex]?.name,
+      currentTurn: this.activePlayers[this.turnIndex]?.name,
       lastPlay: this.currentSet
     };
     this.players.forEach(p => {
       p.socket.emit('state', state);
       p.socket.emit('hand', { hand: p.hand });
     });
+  }
+
+  broadcastReadyState() {
+    const data = { ready: Array.from(this.ready) };
+    this.players.forEach(p => p.socket.emit('readyState', data));
+  }
+
+  readyUp(socket) {
+    if (!this.waitingForReady) return;
+    const player = this.players.find(p => p.socket === socket);
+    if (!player) return;
+    this.ready.add(player.name);
+    this.broadcastReadyState();
+    if (this.ready.size === this.players.length) {
+      this.start();
+    }
   }
 }
 

@@ -13,12 +13,20 @@ export default function App() {
   const [state, setState] = useState(null);
   const [selected, setSelected] = useState([]);
   const [playerName, setPlayerName] = useState('');
+  const [rankings, setRankings] = useState(null);
+  const [ready, setReady] = useState([]);
 
   useEffect(() => {
-    socket.on('start', ({ hand }) => setHand(hand));
+    socket.on('start', ({ hand }) => {
+      setRankings(null);
+      setReady([]);
+      setHand(hand);
+    });
     socket.on('hand', ({ hand }) => setHand(hand));
     socket.on('state', data => setState(data));
     socket.on('joined', ({ name }) => setPlayerName(name));
+    socket.on('gameOver', ({ rankings }) => setRankings(rankings));
+    socket.on('readyState', ({ ready }) => setReady(ready));
     socket.emit('join');
     return () => {
       socket.disconnect();
@@ -39,12 +47,41 @@ export default function App() {
     }
   };
 
+  const readyUp = () => {
+    socket.emit('ready');
+  };
+
   const pass = () => {
     socket.emit('pass');
     setSelected([]);
   };
 
   const myTurn = state && state.currentTurn === playerName;
+
+  if (rankings) {
+    return (
+      <div className="container mx-auto p-4 space-y-4">
+        <h1 className="text-2xl font-bold">Game Over</h1>
+        <ol className="list-decimal pl-4">
+          {rankings.map((n, i) => (
+            <li key={n}>{i + 1}. {n}</li>
+          ))}
+        </ol>
+        <button
+          onClick={readyUp}
+          disabled={ready.includes(playerName)}
+          className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+        >
+          Play Again
+        </button>
+        {ready.length < rankings.length && (
+          <div>
+            Waiting for: {rankings.filter(n => !ready.includes(n)).join(', ')}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
