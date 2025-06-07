@@ -36,6 +36,15 @@ function cardImageUrl(card) {
 
 const CARD_BACK = 'https://raw.githubusercontent.com/hayeah/playing-cards-assets/master/png/back.png';
 
+function avatarColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const h = Math.abs(hash) % 360;
+  return `hsl(${h},65%,60%)`;
+}
+
 const RANK_ORDER = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 // Suit order from weakest to strongest: spades < clubs < diamonds < hearts
 const SUIT_ORDER = ['s','c','d','h'];
@@ -376,7 +385,7 @@ export default function App() {
       <div className="text-center mb-4">You are: {playerName}</div>
 
       {state && (
-        <div className="relative mx-auto max-w-4xl h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-500 via-yellow-400 to-yellow-200 shadow-inner">
+        <div className="relative mx-auto max-w-4xl h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
           <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold">
             Current turn: {state.currentTurn}
           </div>
@@ -387,15 +396,24 @@ export default function App() {
           )}
           <img src={CARD_BACK} alt="Deck" className="absolute w-16 left-4 top-1/2 -translate-y-1/2" />
           {state.lastPlay && (
-            <img
-              src={cardImageUrl(state.lastPlay.cards[state.lastPlay.cards.length-1])}
-              alt="Discard"
-              className="absolute w-16 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            />
+            state.lastPlay.cards.slice(-4).map((c, i, arr) => (
+              <img
+                key={i}
+                src={cardImageUrl(c)}
+                alt={cardDisplay(c)}
+                className="absolute w-16"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%,-50%) rotate(${(i-(arr.length-1)/2)*10}deg) translateX(${(i-(arr.length-1)/2)*10}px)`
+                }}
+              />
+            ))
           )}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <svg className="w-24 h-24 text-yellow-700 animate-spin-slow" viewBox="0 0 100 100">
-              <path d="M50 10 L60 25 H55 V75 H45 V25 H40 Z" fill="currentColor" />
+            <svg className="w-24 h-24 text-white drop-shadow-lg animate-spin-reverse-slow" viewBox="0 0 100 100">
+              <path d="M50 10 A40 40 0 1 0 49.9 10" fill="none" stroke="currentColor" strokeWidth="8" />
+              <polygon points="50,2 56,14 44,14" fill="currentColor" />
             </svg>
           </div>
           {state.players.map((p, idx) => {
@@ -403,9 +421,12 @@ export default function App() {
             const posIndex = (idx - myIndex + state.players.length) % state.players.length;
             const pos = ['bottom','left','top','right'][posIndex];
             return (
-              <div key={p.name} id={`player-${p.name}`} className={`absolute ${positionStyle(pos)} text-black`}>                
+              <div key={p.name} id={`player-${p.name}`} className={`absolute ${positionStyle(pos)} text-black`}>
                 <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${myTurn && p.name === playerName ? 'glowing-turn' : ''}`}
+                    style={{ backgroundColor: avatarColor(p.name) }}
+                  >
                     {p.name.slice(0,1)}
                   </div>
                   {pos !== 'bottom' && (
@@ -418,18 +439,22 @@ export default function App() {
                   )}
                 </div>
                 {pos === 'bottom' && (
-                  <div className="relative h-32 mt-2 flex items-end justify-center overflow-x-auto">
+                  <div className="relative h-40 mt-2 flex items-end justify-center overflow-x-auto" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 8;
-                      const selectedClass = selected.includes(i) ? '-translate-y-6' : '';
+                      const angle = (i - (hand.length - 1) / 2) * 10;
+                      const tilt = -angle * 0.5;
+                      const selectedClass = selected.includes(i) ? '-translate-y-8' : '';
                       return (
                         <img
                           key={i}
                           src={cardImageUrl(c)}
                           alt={cardDisplay(c)}
                           onClick={() => toggleCard(i)}
-                          className={`w-16 absolute transition-transform cursor-pointer ${selectedClass}`}
-                          style={{ transform: `translate(-50%,0) rotate(${angle}deg)`, left: `${((i+1)/(hand.length+1))*100}%` }}
+                          className={`w-20 absolute transition-transform drop-shadow-lg cursor-pointer ${selectedClass}`}
+                          style={{
+                            transform: `translate(-50%,0) rotateY(${tilt}deg) rotate(${angle}deg)`,
+                            left: `${((i+1)/(hand.length+1))*100}%`
+                          }}
                         />
                       );
                     })}
@@ -469,6 +494,20 @@ export default function App() {
           Leave
         </button>
       </div>
+      {state && (
+        <div className="fixed bottom-4 left-4 flex items-center gap-2 text-white">
+          <div
+            className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${myTurn ? 'glowing-turn' : ''}`}
+            style={{ backgroundColor: avatarColor(playerName) }}
+          >
+            {playerName.slice(0,1)}
+          </div>
+          <div className="leading-tight">
+            <div className="font-semibold">{playerName}</div>
+            <div className="text-sm">{hand.length} cards</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

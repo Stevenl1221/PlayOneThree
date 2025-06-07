@@ -17,3 +17,15 @@
 .animate-spin-slow {
   animation: spin-slow 6s linear infinite;
 }
+
+@keyframes spin-reverse-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.animate-spin-reverse-slow {
+  animation: spin-reverse-slow 6s linear infinite;
+}
+
+.glowing-turn {
+  box-shadow: 0 0 8px 4px rgba(255, 255, 0, 0.8);
+}
