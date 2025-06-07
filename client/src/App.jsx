@@ -411,19 +411,22 @@ export default function App() {
         <div className="relative mx-auto w-full max-w-md sm:max-w-lg md:max-w-4xl h-[22rem] sm:h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
           <img src={CARD_BACK} alt="Deck" className="absolute w-16 left-4 top-1/2 -translate-y-1/2" />
           {state.lastPlay && (
-            state.lastPlay.cards.slice(-4).map((c, i, arr) => (
-              <img
-                key={i}
-                src={cardImageUrl(c)}
-                alt={cardDisplay(c)}
-                className="absolute w-16 bg-white rounded-sm"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  transform: `translate(-50%,-50%) rotate(${(i-(arr.length-1)/2)*10}deg) translateX(${(i-(arr.length-1)/2)*10}px)`
-                }}
-              />
-            ))
+            state.lastPlay.cards.map((c, i, arr) => {
+              const offset = i - (arr.length - 1) / 2;
+              return (
+                <img
+                  key={i}
+                  src={cardImageUrl(c)}
+                  alt={cardDisplay(c)}
+                  className="absolute w-16 bg-white rounded-sm"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    transform: `translate(-50%,-50%) rotate(${offset * 10}deg) translateX(${offset * 10}px)`
+                  }}
+                />
+              );
+            })
           )}
           {state.players.map((p, idx) => {
             const myIndex = state.players.findIndex(pl => pl.name === playerName);
