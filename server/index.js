@@ -93,7 +93,7 @@ io.on('connection', socket => {
     const lobby = lobbies.get(socket.data.lobbyId);
     if (!lobby) return;
     if (lobby.host !== socket.id) return;
-    if (!lobby.game.gameActive) return;
+    if (!lobby.game.gameActive && !lobby.game.waitingForReady) return;
     lobby.game.waitingForReady = false;
     lobby.game.ready.clear();
     lobby.game.rankings = [];
