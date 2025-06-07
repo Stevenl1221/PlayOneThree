@@ -2,6 +2,10 @@
 
 This repository contains a simple multiplayer "Thirteen" card game with a separate server and client.
 
+## Gameplay Rules
+- Standard "Thirteen" mechanics are implemented.
+- Sequences may **not** include the rank `2`.
+
 ## Prerequisites
 - [Node.js](https://nodejs.org/) (version 16 or later)
 - npm (comes with Node.js)
