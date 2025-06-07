@@ -228,7 +228,7 @@ export default function App() {
   const positionStyle = (pos) => {
     switch (pos) {
       case 'bottom':
-        return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-[55vw] px-4';
+        return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-full px-4';
       case 'left':
         return 'left-4 top-1/2 -translate-y-1/2 items-start';
       case 'top':
@@ -411,40 +411,35 @@ export default function App() {
               />
             ))
           )}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <svg className="w-24 h-24 text-white drop-shadow-lg animate-spin-reverse-slow" viewBox="0 0 100 100">
-              <path d="M50 10 A40 40 0 1 0 49.9 10" fill="none" stroke="currentColor" strokeWidth="8" />
-              <polygon points="50,2 56,14 44,14" fill="currentColor" />
-            </svg>
-          </div>
           {state.players.map((p, idx) => {
             const myIndex = state.players.findIndex(pl => pl.name === playerName);
             const posIndex = (idx - myIndex + state.players.length) % state.players.length;
             const pos = ['bottom','left','top','right'][posIndex];
             return (
               <div key={p.name} id={`player-${p.name}`} className={`absolute ${positionStyle(pos)} text-black`}>
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${myTurn && p.name === playerName ? 'glowing-turn' : ''}`}
-                    style={{ backgroundColor: avatarColor(p.name) }}
-                  >
-                    {p.name.slice(0,1)}
-                  </div>
-                  {pos !== 'bottom' && (
+                {pos !== 'bottom' && (
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${myTurn && p.name === playerName ? 'glowing-turn' : ''}`}
+                      style={{ backgroundColor: avatarColor(p.name) }}
+                    >
+                      {p.name.slice(0,1)}
+                    </div>
                     <div className="relative mt-1">
                       <img src={CARD_BACK} alt="" className="w-12" />
                       <div className="absolute -top-2 -right-2 w-5 h-5 text-xs bg-yellow-400 rounded-full flex items-center justify-center">
                         {p.handCount}
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
                 {pos === 'bottom' && (
-                  <div className="relative h-56 mt-2 flex items-end justify-center overflow-x-auto w-full z-20" style={{ perspective: '800px' }}>
+                  <div className="relative h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 10;
+                      const angle = (i - (hand.length - 1) / 2) * 12;
                       const tilt = -angle * 0.4;
-                      const shift = (i - (hand.length - 1) / 2) * 10;
+                      const shift = (i - (hand.length - 1) / 2) * 6;
+                      const drop = Math.abs(angle) * 2;
                       const selectedClass = selected.includes(i) ? '-translate-y-8' : '';
                       return (
                         <motion.img
@@ -455,7 +450,7 @@ export default function App() {
                           whileHover={{ translateY: -16 }}
                           className={`w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${selectedClass}`}
                           style={{
-                            transform: `translate(-50%,0) rotateY(${tilt}deg) rotate(${angle}deg)`,
+                            transform: `translate(-50%,-${drop}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                             left: `calc(50% + ${shift}%)`
                           }}
                         />
