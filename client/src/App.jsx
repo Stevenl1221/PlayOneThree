@@ -493,7 +493,7 @@ export default function App() {
               : 'right-2 bottom-2 sm:bottom-4'
           } flex flex-col items-center`}
         >
-          <div className={`flex ${isMobile ? 'flex-row gap-2' : 'flex-row gap-2'}`}>
+          <div className="flex flex-row gap-2">
             <button
               onClick={playSelected}
               disabled={!myTurn || selected.length === 0}
@@ -514,13 +514,13 @@ export default function App() {
             >
               Sort
             </button>
+            <button
+              onClick={leaveLobby}
+              className="px-4 py-2 bg-red-500 text-white rounded"
+            >
+              Leave
+            </button>
           </div>
-          <button
-            onClick={leaveLobby}
-            className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
-          >
-            Leave
-          </button>
         </div>
         </>
       )}
