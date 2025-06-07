@@ -110,13 +110,21 @@ export default function App() {
   const myTurn = state && state.currentTurn === playerName;
 
   if (rankings) {
+    const rankStyles = ['text-xl font-bold', 'text-lg font-semibold', ''];
     return (
       <div className="container mx-auto p-4 space-y-4">
         <h1 className="text-2xl font-bold">Game Over</h1>
         <div className="text-gray-600">You are: {playerName}</div>
-        <ol className="list-decimal pl-4">
+        <ol className="list-decimal pl-4 space-y-1">
           {rankings.map((n, i) => (
-            <li key={n}>{i + 1}. {n}</li>
+            <li key={n} className={`flex items-center gap-2 ${rankStyles[i] || ''}`}>
+              {i === 0 && (
+                <span role="img" aria-label="winner" className="text-yellow-500">
+                  👑
+                </span>
+              )}
+              <span>{n}</span>
+            </li>
           ))}
         </ol>
         {currentLobby && currentLobby.hostId === socket.id && (
