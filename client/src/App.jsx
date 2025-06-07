@@ -228,7 +228,7 @@ export default function App() {
   const positionStyle = (pos) => {
     switch (pos) {
       case 'bottom':
-        return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-screen px-4';
+        return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-[55vw] px-4';
       case 'left':
         return 'left-4 top-1/2 -translate-y-1/2 items-start';
       case 'top':
