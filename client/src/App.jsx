@@ -398,8 +398,13 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen p-4 text-white overflow-hidden">
-      <h1 className="text-3xl font-bold text-center mb-2">Thirteen Game</h1>
+    <div className="relative min-h-screen p-4 text-gray-800 overflow-hidden">
+      <h1
+        className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 drop-shadow text-center mb-2"
+        style={{ fontFamily: '"Bangers", cursive' }}
+      >
+        Thirteen Game
+      </h1>
       <div className="text-center mb-4">
         <span className="inline-block bg-white/80 text-black px-2 py-1 rounded">
           Current turn: {state?.currentTurn}
@@ -436,7 +441,7 @@ export default function App() {
                 {pos !== 'bottom' && (
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${myTurn && p.name === playerName ? 'glowing-turn' : ''}`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-black text-sm font-bold ${myTurn && p.name === playerName ? 'glowing-turn' : ''}`}
                       style={{ backgroundColor: avatarColor(p.name) }}
                     >
                       {p.name.slice(0,1)}
@@ -525,7 +530,7 @@ export default function App() {
         </>
       )}
       {state && (
-        <div className="fixed bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 text-white">
+        <div className="fixed bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 text-gray-800">
           <div
             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold ${myTurn ? 'glowing-turn' : ''}`}
             style={{ backgroundColor: avatarColor(playerName) }}
