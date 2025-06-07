@@ -29,7 +29,6 @@ export default function App() {
     socket.on('joined', ({ name }) => setPlayerName(name));
     socket.on('gameOver', ({ rankings }) => setRankings(rankings));
     socket.on('readyState', ({ ready }) => setReady(ready));
-    socket.emit('join');
     return () => {
       socket.disconnect();
     };
