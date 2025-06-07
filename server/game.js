@@ -76,9 +76,11 @@ class Game {
     for (let i=0;i<this.players.length;i++) {
       this.players[i].hand = deck.slice(i*13, (i+1)*13);
       this.players[i].socket.emit('start', {hand: this.players[i].hand});
+      this.players[i].socket.emit('hand', {hand: this.players[i].hand});
     }
     this.turnIndex = 0;
     this.currentSet = null;
+    this.broadcastState();
   }
 
   playCards(socket, cards) {
@@ -155,7 +157,10 @@ class Game {
       currentTurn: this.players[this.turnIndex]?.name,
       lastPlay: this.currentSet
     };
-    this.players.forEach(p => p.socket.emit('state', state));
+    this.players.forEach(p => {
+      p.socket.emit('state', state);
+      p.socket.emit('hand', { hand: p.hand });
+    });
   }
 }
 
