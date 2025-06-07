@@ -86,6 +86,10 @@ export default function App() {
             Waiting for: {rankings.filter(n => !ready.includes(n)).join(', ')}
           </div>
         )}
+      </div>
+    );
+  }
+
   if (!playerName) {
     return (
       <div className="container mx-auto p-4">
