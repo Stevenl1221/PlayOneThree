@@ -85,6 +85,13 @@ export default function App() {
   const [nameInput, setNameInput] = useState('');
   const [lobbies, setLobbies] = useState([]);
   const [currentLobby, setCurrentLobby] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     rankingsRef.current = rankings;
@@ -231,11 +238,11 @@ export default function App() {
       case 'bottom':
         return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-full px-4';
       case 'left':
-        return 'left-4 top-1/2 -translate-y-1/2 items-start';
+        return 'left-2 sm:left-4 top-1/2 -translate-y-1/2 items-start';
       case 'top':
-        return 'top-4 left-1/2 -translate-x-1/2 items-center';
+        return 'top-2 sm:top-4 left-1/2 -translate-x-1/2 items-center';
       case 'right':
-        return 'right-4 top-1/2 -translate-y-1/2 items-end';
+        return 'right-2 sm:right-4 top-1/2 -translate-y-1/2 items-end';
       default:
         return '';
     }
@@ -387,7 +394,7 @@ export default function App() {
       <div className="text-center mb-4">You are: {playerName}</div>
 
       {state && (
-        <div className="relative mx-auto max-w-4xl h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
+        <div className="relative mx-auto w-full max-w-md sm:max-w-lg md:max-w-4xl h-[22rem] sm:h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
           <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold bg-white/80 px-2 py-1 rounded">
             Current turn: {state.currentTurn}
           </div>
@@ -435,11 +442,12 @@ export default function App() {
                   </div>
                 )}
                 {pos === 'bottom' && (
-                  <div className="relative h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
+                  <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
                       const angle = (i - (hand.length - 1) / 2) * 8;
                       const tilt = -angle * 0.3;
-                      const shift = (i - (hand.length - 1) / 2) * 32;
+                      const spacing = isMobile ? 24 : 32;
+                      const shift = (i - (hand.length - 1) / 2) * spacing;
                       const drop = Math.abs(angle) * 1.2;
                       const isSelected = selected.includes(i);
                       const isHovered = hovered === i;
@@ -452,7 +460,7 @@ export default function App() {
                           onClick={() => toggleCard(i)}
                           onMouseEnter={() => setHovered(i)}
                           onMouseLeave={() => setHovered(null)}
-                          className={`w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
+                          className={`w-24 sm:w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
                           style={{
                             transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                             left: `calc(50% + ${shift}px)`
@@ -468,7 +476,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
+      <div className="fixed right-2 bottom-2 sm:bottom-auto sm:right-4 sm:top-1/2 sm:-translate-y-1/2 flex flex-col items-center gap-4">
         <div className="flex flex-col gap-2">
           <button
             onClick={playSelected}
@@ -499,9 +507,9 @@ export default function App() {
         </button>
       </div>
       {state && (
-        <div className="fixed bottom-4 left-4 flex items-center gap-2 text-white">
+        <div className="fixed bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 text-white">
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${myTurn ? 'glowing-turn' : ''}`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold ${myTurn ? 'glowing-turn' : ''}`}
             style={{ backgroundColor: avatarColor(playerName) }}
           >
             {playerName.slice(0,1)}
