@@ -227,7 +227,7 @@ class Game {
 
     if (player.hand.length === 0) {
       player.finished = true;
-      player.socket.emit('finished');
+      this.players.forEach(p => p.socket.emit('finished', { player: player.name }));
       this.rankings.push(player.name);
       this.activePlayers.splice(idx, 1);
       if (nextIndex > idx) nextIndex--;

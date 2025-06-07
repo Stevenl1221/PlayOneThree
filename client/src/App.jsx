@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+import confetti from 'canvas-confetti';
 
 const socket = io('http://localhost:3001');
 
@@ -16,6 +17,23 @@ function cardCompare(a, b) {
   return r !== 0 ? r : SUIT_ORDER.indexOf(a.suit) - SUIT_ORDER.indexOf(b.suit);
 }
 
+function triggerConfetti(player) {
+  const el = document.getElementById(`player-${player}`);
+  if (el) {
+    const rect = el.getBoundingClientRect();
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: {
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight,
+      },
+    });
+  } else {
+    confetti({ particleCount: 150, spread: 70 });
+  }
+}
+
 export default function App() {
   const [hand, setHand] = useState([]);
   const [state, setState] = useState(null);
@@ -23,6 +41,8 @@ export default function App() {
   const [playerName, setPlayerName] = useState('');
   const [rankings, setRankings] = useState(null);
   const rankingsRef = useRef(rankings);
+  const [lastWinner, setLastWinner] = useState(null);
+  const lastWinnerRef = useRef(lastWinner);
   const [nameInput, setNameInput] = useState('');
   const [lobbies, setLobbies] = useState([]);
   const [currentLobby, setCurrentLobby] = useState(null);
@@ -30,6 +50,10 @@ export default function App() {
   useEffect(() => {
     rankingsRef.current = rankings;
   }, [rankings]);
+
+  useEffect(() => {
+    lastWinnerRef.current = lastWinner;
+  }, [lastWinner]);
 
   useEffect(() => {
     socket.on('nameSet', ({ name }) => {
@@ -48,6 +72,7 @@ export default function App() {
     });
     socket.on('start', ({ hand }) => {
       setRankings(null);
+      setLastWinner(null);
       setHand(hand);
       setSelected([]);
     });
@@ -71,7 +96,18 @@ export default function App() {
       });
     });
     socket.on('state', data => setState(data));
-    socket.on('gameOver', ({ rankings }) => setRankings(rankings));
+    socket.on('finished', ({ player }) => {
+      if (!lastWinnerRef.current) {
+        setLastWinner(player);
+        triggerConfetti(player);
+      }
+    });
+    socket.on('gameOver', ({ rankings }) => {
+      setRankings(rankings);
+      if (!lastWinnerRef.current && rankings?.length) {
+        setLastWinner(rankings[0]);
+      }
+    });
     return () => {
       socket.disconnect();
     };
@@ -136,7 +172,7 @@ export default function App() {
         <div className="text-gray-600">You are: {playerName}</div>
         <ol className="list-decimal pl-4 space-y-1">
           {rankings.map((n, i) => (
-            <li key={n} className={`flex items-center gap-2 ${rankStyles[i] || ''}`}>
+            <li key={n} id={`player-${n}`} className={`flex items-center gap-2 ${rankStyles[i] || ''}`}>
               {i === 0 && (
                 <span role="img" aria-label="winner" className="text-yellow-500">
                   👑
@@ -217,7 +253,17 @@ export default function App() {
       <div className="container mx-auto p-4 space-y-4">
         <h1 className="text-2xl font-bold">Lobby</h1>
         <div className="text-gray-600">You are: {playerName}</div>
-        <div>Players: {currentLobby.players.join(', ')}</div>
+        <div>Players:</div>
+        <ul className="list-disc pl-4 space-y-1">
+          {currentLobby.players.map(n => (
+            <li key={n} id={`player-${n}`} className="flex items-center gap-1">
+              {lastWinner === n && (
+                <span role="img" aria-label="winner" className="text-yellow-500">👑</span>
+              )}
+              <span>{n}</span>
+            </li>
+          ))}
+        </ul>
         {currentLobby.hostId === socket.id ? (
           <button
             onClick={startGame}
@@ -243,7 +289,12 @@ export default function App() {
           <div>Current turn: {state.currentTurn}</div>
           <div className="flex gap-4">
             {state.players.map((p) => (
-              <div key={p.name}>{p.name}: {p.handCount}</div>
+              <div key={p.name} id={`player-${p.name}`} className="flex items-center gap-1">
+                {lastWinner === p.name && (
+                  <span role="img" aria-label="winner" className="text-yellow-500">👑</span>
+                )}
+                <span>{p.name}: {p.handCount}</span>
+              </div>
             ))}
           </div>
           {state.lastPlay && (
