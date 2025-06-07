@@ -8,6 +8,14 @@ function cardDisplay(card) {
   return card ? `${card.rank}${symbols[card.suit]}` : '';
 }
 
+const RANK_ORDER = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+const SUIT_ORDER = ['c','s','d','h'];
+
+function cardCompare(a, b) {
+  const r = RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank);
+  return r !== 0 ? r : SUIT_ORDER.indexOf(a.suit) - SUIT_ORDER.indexOf(b.suit);
+}
+
 export default function App() {
   const [hand, setHand] = useState([]);
   const [state, setState] = useState(null);
@@ -55,6 +63,19 @@ export default function App() {
   const pass = () => {
     socket.emit('pass');
     setSelected([]);
+  };
+
+  const sortHand = () => {
+    setHand(prev => {
+      const sorted = [...prev].sort(cardCompare);
+      setSelected(sel => {
+        const selectedCards = sel.map(i => prev[i]);
+        return selectedCards.map(card =>
+          sorted.findIndex(c => c.rank === card.rank && c.suit === card.suit)
+        );
+      });
+      return sorted;
+    });
   };
 
   const joinGame = () => {
@@ -161,6 +182,12 @@ export default function App() {
           className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
         >
           Pass
+        </button>
+        <button
+          onClick={sortHand}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Sort Hand
         </button>
       </div>
     </div>
