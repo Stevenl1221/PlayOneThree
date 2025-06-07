@@ -250,12 +250,15 @@ export default function App() {
           <ul className="space-y-2">
             {lobbies.map(l => (
               <li key={l.id} className="flex items-center gap-2">
-                <span>{l.hostName} ({l.players.length}/4)</span>
+                <span>
+                  {l.hostName} ({l.players.length}/4) -{' '}
+                  {l.started ? 'In game' : 'Waiting'}
+                </span>
                 <button
                   onClick={() => joinLobby(l.id)}
                   className="px-2 py-1 bg-blue-500 text-white rounded"
                 >
-                  Join
+                  {l.started ? 'Spectate' : 'Join'}
                 </button>
               </li>
             ))}
