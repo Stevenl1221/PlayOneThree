@@ -228,7 +228,7 @@ export default function App() {
   const positionStyle = (pos) => {
     switch (pos) {
       case 'bottom':
-        return 'bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center';
+        return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-screen px-4';
       case 'left':
         return 'left-4 top-1/2 -translate-y-1/2 items-start';
       case 'top':
@@ -387,11 +387,11 @@ export default function App() {
 
       {state && (
         <div className="relative mx-auto max-w-4xl h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold bg-white/80 px-2 py-1 rounded">
             Current turn: {state.currentTurn}
           </div>
           {state.lastPlay && (
-            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-black">
+            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-black bg-white/80 px-2 py-1 rounded">
               Last: {state.lastPlay.player}
             </div>
           )}
@@ -402,7 +402,7 @@ export default function App() {
                 key={i}
                 src={cardImageUrl(c)}
                 alt={cardDisplay(c)}
-                className="absolute w-16"
+                className="absolute w-16 bg-white rounded-sm"
                 style={{
                   left: '50%',
                   top: '50%',
@@ -440,11 +440,11 @@ export default function App() {
                   )}
                 </div>
                 {pos === 'bottom' && (
-                  <div className="relative h-48 mt-2 flex items-end justify-center overflow-x-auto w-full z-20" style={{ perspective: '800px' }}>
+                  <div className="relative h-56 mt-2 flex items-end justify-center overflow-x-auto w-full z-20" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 12;
+                      const angle = (i - (hand.length - 1) / 2) * 10;
                       const tilt = -angle * 0.4;
-                      const shift = (i - (hand.length - 1) / 2) * 8;
+                      const shift = (i - (hand.length - 1) / 2) * 10;
                       const selectedClass = selected.includes(i) ? '-translate-y-8' : '';
                       return (
                         <motion.img
@@ -453,7 +453,7 @@ export default function App() {
                           alt={cardDisplay(c)}
                           onClick={() => toggleCard(i)}
                           whileHover={{ translateY: -16 }}
-                          className={`w-24 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${selectedClass}`}
+                          className={`w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${selectedClass}`}
                           style={{
                             transform: `translate(-50%,0) rotateY(${tilt}deg) rotate(${angle}deg)`,
                             left: `calc(50% + ${shift}%)`
@@ -469,27 +469,29 @@ export default function App() {
         </div>
       )}
 
-      <div className="mt-4 flex justify-center flex-wrap gap-2">
-        <button
-          onClick={playSelected}
-          disabled={!myTurn || selected.length === 0}
-          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-        >
-          Play
-        </button>
-        <button
-          onClick={pass}
-          disabled={!myTurn}
-          className="px-4 py-2 bg-gray-300 text-black rounded disabled:opacity-50"
-        >
-          Pass
-        </button>
-        <button
-          onClick={sortHand}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Sort
-        </button>
+      <div className="mt-4 flex flex-col items-center gap-4">
+        <div className="flex gap-2">
+          <button
+            onClick={playSelected}
+            disabled={!myTurn || selected.length === 0}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          >
+            Play
+          </button>
+          <button
+            onClick={pass}
+            disabled={!myTurn}
+            className="px-4 py-2 bg-gray-300 text-black rounded disabled:opacity-50"
+          >
+            Pass
+          </button>
+          <button
+            onClick={sortHand}
+            className="px-4 py-2 bg-green-500 text-white rounded"
+          >
+            Sort
+          </button>
+        </div>
         <button
           onClick={leaveLobby}
           className="px-4 py-2 bg-red-500 text-white rounded"
