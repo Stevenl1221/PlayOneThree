@@ -15,6 +15,8 @@ export default function App() {
   const [playerName, setPlayerName] = useState('');
   const [rankings, setRankings] = useState(null);
   const [ready, setReady] = useState([]);
+  const [nameInput, setNameInput] = useState('');
+  const [hasJoined, setHasJoined] = useState(false);
 
   useEffect(() => {
     socket.on('start', ({ hand }) => {
@@ -56,6 +58,11 @@ export default function App() {
     setSelected([]);
   };
 
+  const joinGame = () => {
+    socket.emit('join', nameInput.trim() || undefined);
+    setHasJoined(true);
+  };
+
   const myTurn = state && state.currentTurn === playerName;
 
   if (rankings) {
@@ -79,6 +86,26 @@ export default function App() {
             Waiting for: {rankings.filter(n => !ready.includes(n)).join(', ')}
           </div>
         )}
+  if (!playerName) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Thirteen Game</h1>
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder="Enter your name"
+            className="border rounded px-2 py-1"
+          />
+          <button
+            onClick={joinGame}
+            disabled={hasJoined}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          >
+            Join Game
+          </button>
+        </div>
       </div>
     );
   }

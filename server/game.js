@@ -220,6 +220,7 @@ class Game {
       const i = player.hand.findIndex(c => c.rank === card.rank && c.suit === card.suit);
       if (i !== -1) player.hand.splice(i, 1);
     });
+    player.socket.emit('hand', { hand: player.hand });
 
     this.currentSet = { cards: play.cards, player: player.name, type: play.type, highest: play.highest };
     this.lastPlayIndex = idx;
