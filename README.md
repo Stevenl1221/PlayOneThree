@@ -62,7 +62,7 @@ Use the `PORT` environment variable to change the listening port if needed.
 
 During development the client connects to `http://localhost:3001`. When you
 build the client for production, it automatically uses
+
 `https://playonethree.onrender.com` as the Socket.IO server URL. The hosted
 client is available at `https://playonethree-1.onrender.com`. If you deploy the
 server somewhere else, edit `client/src/App.jsx` to point at your server.
-
