@@ -14,7 +14,8 @@ function cardDisplay(card) {
 }
 
 const RANK_ORDER = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-const SUIT_ORDER = ['c','s','d','h'];
+// Suit order from weakest to strongest: spades < clubs < diamonds < hearts
+const SUIT_ORDER = ['s','c','d','h'];
 
 function cardCompare(a, b) {
   const r = RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank);

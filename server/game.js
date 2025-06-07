@@ -1,7 +1,8 @@
 class Card {
   constructor(rank, suit) {
     this.rank = rank; // 3..A,2
-    this.suit = suit; // c,s,d,h
+    // Suits ordered from weakest to strongest: spades, clubs, diamonds, hearts
+    this.suit = suit; // s,c,d,h
   }
 
   toString() {
@@ -10,7 +11,8 @@ class Card {
 }
 
 const RANKS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-const SUITS = ['c','s','d','h'];
+// Suit order from weakest to strongest: spades < clubs < diamonds < hearts
+const SUITS = ['s','c','d','h'];
 
 function compareRank(a, b) {
   return RANKS.indexOf(a) - RANKS.indexOf(b);
