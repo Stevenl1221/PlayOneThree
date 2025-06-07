@@ -302,7 +302,7 @@ export default function App() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1.1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 120 }}
-          className="text-4xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 drop-shadow"
+          className="text-4xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 drop-shadow leading-[1.2]"
           style={{ fontFamily: '"Pacifico", cursive' }}
         >
           Thirteen Game
