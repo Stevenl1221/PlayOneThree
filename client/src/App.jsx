@@ -297,8 +297,16 @@ export default function App() {
 
   if (!playerName) {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Thirteen Game</h1>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <motion.h1
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1.1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 120 }}
+          className="text-4xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 drop-shadow"
+          style={{ fontFamily: '"Pacifico", cursive' }}
+        >
+          Thirteen Game
+        </motion.h1>
         <div className="space-y-2">
           <input
             type="text"
