@@ -13,6 +13,29 @@ function cardDisplay(card) {
   return card ? `${card.rank}${symbols[card.suit]}` : '';
 }
 
+function cardImageUrl(card) {
+  if (!card) return '';
+  const rankMap = {
+    'A': 'ace',
+    'K': 'king',
+    'Q': 'queen',
+    'J': 'jack',
+    '10': '10',
+    '9': '9',
+    '8': '8',
+    '7': '7',
+    '6': '6',
+    '5': '5',
+    '4': '4',
+    '3': '3',
+    '2': '2',
+  };
+  const suitMap = { c: 'clubs', d: 'diamonds', h: 'hearts', s: 'spades' };
+  return `https://raw.githubusercontent.com/hayeah/playing-cards-assets/master/png/${rankMap[card.rank]}_of_${suitMap[card.suit]}.png`;
+}
+
+const CARD_BACK = 'https://raw.githubusercontent.com/hayeah/playing-cards-assets/master/png/back.png';
+
 const RANK_ORDER = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 // Suit order from weakest to strongest: spades < clubs < diamonds < hearts
 const SUIT_ORDER = ['s','c','d','h'];
@@ -192,6 +215,21 @@ export default function App() {
 
   const myTurn = state && state.currentTurn === playerName;
 
+  const positionStyle = (pos) => {
+    switch (pos) {
+      case 'bottom':
+        return 'bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center';
+      case 'left':
+        return 'left-4 top-1/2 -translate-y-1/2 items-start';
+      case 'top':
+        return 'top-4 left-1/2 -translate-x-1/2 items-center';
+      case 'right':
+        return 'right-4 top-1/2 -translate-y-1/2 items-end';
+      default:
+        return '';
+    }
+  };
+
   if (rankings) {
     const rankStyles = ['text-xl font-bold', 'text-lg font-semibold', ''];
     return (
@@ -333,66 +371,88 @@ export default function App() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Thirteen Game</h1>
-      <div className="text-gray-600 mb-2">You are: {playerName}</div>
+    <div className="p-4 text-white">
+      <h1 className="text-3xl font-bold text-center mb-2">Thirteen Game</h1>
+      <div className="text-center mb-4">You are: {playerName}</div>
 
       {state && (
-        <div className="mb-4 space-y-2">
-          <div>Current turn: {state.currentTurn}</div>
-          <div className="flex gap-4">
-            {state.players.map((p) => (
-              <div key={p.name} id={`player-${p.name}`} className="flex items-center gap-1">
-                {lastWinner === p.name && (
-                  <span role="img" aria-label="winner" className="text-yellow-500">👑</span>
-                )}
-                <span>{p.name}: {p.handCount}</span>
-              </div>
-            ))}
+        <div className="relative mx-auto max-w-4xl h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-500 via-yellow-400 to-yellow-200 shadow-inner">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold">
+            Current turn: {state.currentTurn}
           </div>
           {state.lastPlay && (
-            <div>
-              Last play: {state.lastPlay.player} -{' '}
-              {state.lastPlay.cards.map((c, i) => (
-                <span
-                  key={i}
-                  className={['d', 'h'].includes(c.suit) ? 'text-red-600 font-semibold' : 'text-black font-semibold'}
-                >
-                  {cardDisplay(c)}
-                  {i < state.lastPlay.cards.length - 1 ? ' ' : ''}
-                </span>
-              ))}
+            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-black">
+              Last: {state.lastPlay.player}
             </div>
           )}
+          <img src={CARD_BACK} alt="Deck" className="absolute w-16 left-4 top-1/2 -translate-y-1/2" />
+          {state.lastPlay && (
+            <img
+              src={cardImageUrl(state.lastPlay.cards[state.lastPlay.cards.length-1])}
+              alt="Discard"
+              className="absolute w-16 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            />
+          )}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <svg className="w-24 h-24 text-yellow-700 animate-spin-slow" viewBox="0 0 100 100">
+              <path d="M50 10 L60 25 H55 V75 H45 V25 H40 Z" fill="currentColor" />
+            </svg>
+          </div>
+          {state.players.map((p, idx) => {
+            const myIndex = state.players.findIndex(pl => pl.name === playerName);
+            const posIndex = (idx - myIndex + state.players.length) % state.players.length;
+            const pos = ['bottom','left','top','right'][posIndex];
+            return (
+              <div key={p.name} id={`player-${p.name}`} className={`absolute ${positionStyle(pos)} text-black`}>                
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">
+                    {p.name.slice(0,1)}
+                  </div>
+                  {pos !== 'bottom' && (
+                    <div className="relative mt-1">
+                      <img src={CARD_BACK} alt="" className="w-12" />
+                      <div className="absolute -top-2 -right-2 w-5 h-5 text-xs bg-yellow-400 rounded-full flex items-center justify-center">
+                        {p.handCount}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {pos === 'bottom' && (
+                  <div className="relative h-32 mt-2 flex items-end justify-center overflow-x-auto">
+                    {hand.map((c,i) => {
+                      const angle = (i - (hand.length - 1) / 2) * 8;
+                      const selectedClass = selected.includes(i) ? '-translate-y-6' : '';
+                      return (
+                        <img
+                          key={i}
+                          src={cardImageUrl(c)}
+                          alt={cardDisplay(c)}
+                          onClick={() => toggleCard(i)}
+                          className={`w-16 absolute transition-transform cursor-pointer ${selectedClass}`}
+                          style={{ transform: `translate(-50%,0) rotate(${angle}deg)`, left: `${((i+1)/(hand.length+1))*100}%` }}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {hand.map((c, i) => (
-          <div
-            key={i}
-            onClick={() => toggleCard(i)}
-            className={`w-12 h-16 border rounded flex items-center justify-center text-xl font-semibold cursor-pointer select-none
-              ${['d','h'].includes(c.suit) ? 'text-red-600' : 'text-black'}
-              ${selected.includes(i) ? 'bg-yellow-200 border-yellow-500 -translate-y-1' : 'bg-white'}`}
-          >
-            {cardDisplay(c)}
-          </div>
-        ))}
-      </div>
-
-      <div className="space-x-2">
+      <div className="mt-4 flex justify-center flex-wrap gap-2">
         <button
           onClick={playSelected}
           disabled={!myTurn || selected.length === 0}
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
         >
-          Play Selected
+          Play
         </button>
         <button
           onClick={pass}
           disabled={!myTurn}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-300 text-black rounded disabled:opacity-50"
         >
           Pass
         </button>
@@ -400,15 +460,15 @@ export default function App() {
           onClick={sortHand}
           className="px-4 py-2 bg-green-500 text-white rounded"
         >
-          Sort Hand
+          Sort
+        </button>
+        <button
+          onClick={leaveLobby}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Leave
         </button>
       </div>
-      <button
-        onClick={leaveLobby}
-        className="fixed bottom-4 right-4 px-4 py-2 bg-red-500 text-white rounded"
-      >
-        Leave Lobby
-      </button>
     </div>
   );
 }
