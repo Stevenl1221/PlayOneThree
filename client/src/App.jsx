@@ -469,9 +469,12 @@ export default function App() {
                       const isSelected = selected.includes(i);
                       const isHovered = hovered === i;
                       const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
+                      const id = `${c.rank}${c.suit}`;
                       return (
                         <motion.img
-                          key={i}
+                          key={id}
+                          layout
+                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                           src={cardImageUrl(c)}
                           alt={cardDisplay(c)}
                           onClick={() => toggleCard(i)}
