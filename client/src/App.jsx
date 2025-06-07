@@ -239,11 +239,11 @@ export default function App() {
       case 'bottom':
         return 'bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center w-full px-4';
       case 'left':
-        return 'left-2 sm:left-4 top-1/2 -translate-y-1/2 items-start';
+        return 'left-2 sm:left-4 top-1/2 -translate-y-1/2 flex flex-col items-center';
       case 'top':
-        return 'top-2 sm:top-4 left-1/2 -translate-x-1/2 items-center';
+        return 'top-2 sm:top-4 left-1/2 -translate-x-1/2 flex flex-col items-center';
       case 'right':
-        return 'right-2 sm:right-4 top-1/2 -translate-y-1/2 items-end';
+        return 'right-2 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col items-center';
       default:
         return '';
     }
@@ -479,7 +479,7 @@ export default function App() {
         <div
           className={`absolute z-30 ${isMobile ? 'left-1/2 -translate-x-1/2 bottom-36' : 'right-2 bottom-2'} flex flex-col items-center`}
         >
-          <div className={`flex ${isMobile ? 'flex-row gap-2' : 'flex-col gap-2'}`}>
+          <div className={`flex ${isMobile ? 'flex-row gap-2' : 'flex-row gap-2'}`}>
             <button
               onClick={playSelected}
               disabled={!myTurn || selected.length === 0}
