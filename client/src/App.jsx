@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:3001');
@@ -22,9 +22,14 @@ export default function App() {
   const [selected, setSelected] = useState([]);
   const [playerName, setPlayerName] = useState('');
   const [rankings, setRankings] = useState(null);
+  const rankingsRef = useRef(rankings);
   const [nameInput, setNameInput] = useState('');
   const [lobbies, setLobbies] = useState([]);
   const [currentLobby, setCurrentLobby] = useState(null);
+
+  useEffect(() => {
+    rankingsRef.current = rankings;
+  }, [rankings]);
 
   useEffect(() => {
     socket.on('nameSet', ({ name }) => {
@@ -33,7 +38,11 @@ export default function App() {
     });
     socket.on('lobbyList', setLobbies);
     socket.on('lobbyInfo', info => {
-      setCurrentLobby(info);
+      setCurrentLobby(prev => {
+        if (!info.started && prev && prev.hostId !== info.hostId && info.hostId === socket.id && rankingsRef.current)
+          setRankings(null);
+        return info;
+      });
       if (!info.started) return;
       setRankings(null);
     });
