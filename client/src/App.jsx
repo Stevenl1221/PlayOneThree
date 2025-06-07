@@ -182,6 +182,13 @@ export default function App() {
     socket.emit('listLobbies');
   };
 
+  const goToLobby = () => {
+    setRankings(null);
+    setState(null);
+    setHand([]);
+    setSelected([]);
+  };
+
   const myTurn = state && state.currentTurn === playerName;
 
   if (rankings) {
@@ -208,6 +215,14 @@ export default function App() {
             className="px-4 py-2 bg-green-500 text-white rounded"
           >
             Play Again
+          </button>
+        )}
+        {currentLobby && currentLobby.hostId !== socket.id && (
+          <button
+            onClick={goToLobby}
+            className="px-4 py-2 bg-green-500 text-white rounded"
+          >
+            Go to Lobby
           </button>
         )}
         {currentLobby && (
