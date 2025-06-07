@@ -31,6 +31,8 @@ cd client
 npm run dev
 ```
 Vite will provide a local development URL (usually http://localhost:5173).
+Open this URL in your browser and you'll be prompted to enter a name before
+joining the lobby.
 
 ## Building the client for production
 From the `client` directory, run:
