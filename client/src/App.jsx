@@ -392,14 +392,11 @@ export default function App() {
   return (
     <div className="p-4 text-white">
       <h1 className="text-3xl font-bold text-center mb-2">Thirteen Game</h1>
-      <div className="text-center mb-4">You are: {playerName}</div>
+      <div className="text-center mb-4">Current turn: {state?.currentTurn}</div>
 
       {state && (
         <>
         <div className="relative mx-auto w-full max-w-md sm:max-w-lg md:max-w-4xl h-[22rem] sm:h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold bg-white/80 px-2 py-1 rounded">
-            Current turn: {state.currentTurn}
-          </div>
           {state.lastPlay && (
             <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-black bg-white/80 px-2 py-1 rounded">
               Last: {state.lastPlay.player}
@@ -477,7 +474,7 @@ export default function App() {
           })}
         </div>
         <div
-          className={`absolute z-30 ${isMobile ? 'left-1/2 -translate-x-1/2 bottom-0 translate-y-full' : 'right-2 bottom-2'} flex flex-col items-center`}
+          className={`absolute z-30 ${isMobile ? 'left-1/2 -translate-x-1/2 bottom-36' : 'right-2 bottom-2'} flex flex-col items-center`}
         >
           <div className={`flex ${isMobile ? 'flex-row gap-2' : 'flex-col gap-2'}`}>
             <button
