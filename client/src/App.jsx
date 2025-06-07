@@ -49,8 +49,27 @@ export default function App() {
     socket.on('start', ({ hand }) => {
       setRankings(null);
       setHand(hand);
+      setSelected([]);
     });
-    socket.on('hand', ({ hand }) => setHand(hand));
+    socket.on('hand', ({ hand: newHand }) => {
+      setHand(prev => {
+        const updated = prev.filter(card =>
+          newHand.some(c => c.rank === card.rank && c.suit === card.suit)
+        );
+        newHand.forEach(card => {
+          if (!updated.some(c => c.rank === card.rank && c.suit === card.suit)) {
+            updated.push(card);
+          }
+        });
+        setSelected(sel => {
+          const selectedCards = sel.map(i => prev[i]).filter(Boolean);
+          return selectedCards.map(card =>
+            updated.findIndex(c => c.rank === card.rank && c.suit === card.suit)
+          );
+        });
+        return updated;
+      });
+    });
     socket.on('state', data => setState(data));
     socket.on('gameOver', ({ rankings }) => setRankings(rankings));
     return () => {
