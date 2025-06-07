@@ -1,4 +1,3 @@
-const path = require('path');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -13,13 +12,6 @@ const io = new Server(server, {
 });
 
 const game = new Game();
-
-// Serve the built client in production
-const clientDist = path.join(__dirname, '../client/dist');
-app.use(express.static(clientDist));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(clientDist, 'index.html'));
-});
 
 io.on('connection', (socket) => {
   console.log('player connected', socket.id);

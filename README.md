@@ -33,8 +33,7 @@ npm run dev
 Vite will provide a local development URL (usually http://localhost:5173).
 
 ## Building the client for production
-To create a production build of the client, run the following from the
-`client` directory:
+From the `client` directory, run:
 
 ```bash
 npm run build
@@ -46,14 +45,10 @@ npm run preview
 ```
 
 ## Starting the server in production
-The server does not require its own build step. After building the client, the
-server will automatically serve the `dist` directory. From the `server`
-directory run:
+The server does not require a build step. From the `server` directory run:
 
 ```bash
 npm start
 ```
 Use the `PORT` environment variable to change the listening port if needed.
-Once the server is running you can access the game at
-`http://localhost:3001` (or your chosen port).
 
