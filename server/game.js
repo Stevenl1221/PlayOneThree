@@ -120,7 +120,7 @@ class Player {
 }
 
 class Game {
-  constructor() {
+  constructor(autoStart = true) {
     this.players = [];
     this.activePlayers = [];
     this.turnIndex = 0;
@@ -132,6 +132,7 @@ class Game {
     this.ready = new Set();
     this.gameActive = false;
     this.waitingForReady = false;
+    this.autoStart = autoStart;
   }
 
   addPlayer(socket, name) {
@@ -140,7 +141,7 @@ class Game {
     this.players.push(player);
     socket.emit('joined', {name: player.name});
     this.broadcastState();
-    if (!this.gameActive && !this.waitingForReady && this.players.length >= 2) {
+    if (this.autoStart && !this.gameActive && !this.waitingForReady && this.players.length >= 2) {
       this.start();
     }
   }
