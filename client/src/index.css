@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* background bubble pattern */
+.pattern-bubbles {
+  background-image: radial-gradient(rgba(255,255,255,0.15) 2px, transparent 2px),
+    radial-gradient(rgba(255,255,255,0.15) 2px, transparent 2px);
+  background-size: 50px 50px;
+  background-position: 0 0, 25px 25px;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 6s linear infinite;
+}
+
+@keyframes spin-reverse-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.animate-spin-reverse-slow {
+  animation: spin-reverse-slow 6s linear infinite;
+}
+
+.glowing-turn {
+  box-shadow: 0 0 8px 4px rgba(255, 255, 0, 0.8);
+}
