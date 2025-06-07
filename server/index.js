@@ -89,6 +89,20 @@ io.on('connection', socket => {
     }
   });
 
+  socket.on('returnToLobby', () => {
+    const lobby = lobbies.get(socket.data.lobbyId);
+    if (!lobby) return;
+    if (lobby.host !== socket.id) return;
+    if (!lobby.game.gameActive) return;
+    lobby.game.waitingForReady = false;
+    lobby.game.ready.clear();
+    lobby.game.rankings = [];
+    lobby.game.gameActive = false;
+    broadcastLobbyList();
+    updateLobbyInfo(lobby);
+    lobby.game.players.forEach(p => p.socket.emit('returnToLobby'));
+  });
+
   socket.on('play', cards => {
     const lobby = lobbies.get(socket.data.lobbyId);
     if (lobby) lobby.game.playCards(socket, cards);
