@@ -58,3 +58,10 @@ npm start
 ```
 Use the `PORT` environment variable to change the listening port if needed.
 
+## Client/server URL
+
+During development the client connects to `http://localhost:3001`. When you
+build the client for production, it automatically uses
+`https://playonethree-1.onrender.com` as the Socket.IO server URL. If you deploy
+the server somewhere else, edit `client/src/App.jsx` to point at your server.
+

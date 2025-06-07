@@ -2,7 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
-const socket = io('http://localhost:3001');
+const socket = io(
+  import.meta.env.PROD
+    ? 'https://playonethree-1.onrender.com'
+    : 'http://localhost:3001'
+);
 
 function cardDisplay(card) {
   const symbols = { c: '♣', d: '♦', h: '♥', s: '♠' };
