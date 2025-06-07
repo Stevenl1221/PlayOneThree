@@ -477,7 +477,11 @@ export default function App() {
           })}
         </div>
         <div
-          className={`absolute z-30 ${isMobile ? 'left-1/2 -translate-x-1/2 bottom-36' : 'right-2 bottom-2'} flex flex-col items-center`}
+          className={`absolute z-30 ${
+            isMobile
+              ? 'left-1/2 -translate-x-1/2 bottom-36'
+              : 'right-2 bottom-2 sm:bottom-4'
+          } flex flex-col items-center`}
         >
           <div className={`flex ${isMobile ? 'flex-row gap-2' : 'flex-row gap-2'}`}>
             <button
