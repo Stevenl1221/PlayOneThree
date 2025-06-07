@@ -22,21 +22,28 @@ export default function App() {
   const [selected, setSelected] = useState([]);
   const [playerName, setPlayerName] = useState('');
   const [rankings, setRankings] = useState(null);
-  const [ready, setReady] = useState([]);
   const [nameInput, setNameInput] = useState('');
-  const [hasJoined, setHasJoined] = useState(false);
+  const [lobbies, setLobbies] = useState([]);
+  const [currentLobby, setCurrentLobby] = useState(null);
 
   useEffect(() => {
+    socket.on('nameSet', ({ name }) => {
+      setPlayerName(name);
+      socket.emit('listLobbies');
+    });
+    socket.on('lobbyList', setLobbies);
+    socket.on('lobbyInfo', info => {
+      setCurrentLobby(info);
+      if (!info.started) return;
+      setRankings(null);
+    });
     socket.on('start', ({ hand }) => {
       setRankings(null);
-      setReady([]);
       setHand(hand);
     });
     socket.on('hand', ({ hand }) => setHand(hand));
     socket.on('state', data => setState(data));
-    socket.on('joined', ({ name }) => setPlayerName(name));
     socket.on('gameOver', ({ rankings }) => setRankings(rankings));
-    socket.on('readyState', ({ ready }) => setReady(ready));
     return () => {
       socket.disconnect();
     };
@@ -56,9 +63,6 @@ export default function App() {
     }
   };
 
-  const readyUp = () => {
-    socket.emit('ready');
-  };
 
   const pass = () => {
     socket.emit('pass');
@@ -78,9 +82,20 @@ export default function App() {
     });
   };
 
-  const joinGame = () => {
-    socket.emit('join', nameInput.trim() || undefined);
-    setHasJoined(true);
+  const setName = () => {
+    socket.emit('setName', nameInput.trim() || undefined);
+  };
+
+  const createLobby = () => {
+    socket.emit('createLobby');
+  };
+
+  const joinLobby = (id) => {
+    socket.emit('joinLobby', id);
+  };
+
+  const startGame = () => {
+    socket.emit('startGame');
   };
 
   const myTurn = state && state.currentTurn === playerName;
@@ -94,17 +109,13 @@ export default function App() {
             <li key={n}>{i + 1}. {n}</li>
           ))}
         </ol>
-        <button
-          onClick={readyUp}
-          disabled={ready.includes(playerName)}
-          className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
-        >
-          Play Again
-        </button>
-        {ready.length < rankings.length && (
-          <div>
-            Waiting for: {rankings.filter(n => !ready.includes(n)).join(', ')}
-          </div>
+        {currentLobby && currentLobby.hostId === socket.id && (
+          <button
+            onClick={startGame}
+            className="px-4 py-2 bg-green-500 text-white rounded"
+          >
+            Start New Game
+          </button>
         )}
       </div>
     );
@@ -123,13 +134,63 @@ export default function App() {
             className="border rounded px-2 py-1"
           />
           <button
-            onClick={joinGame}
-            disabled={hasJoined}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+            onClick={setName}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
           >
-            Join Game
+            Confirm Name
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (!currentLobby) {
+    return (
+      <div className="container mx-auto p-4 space-y-4">
+        <h1 className="text-2xl font-bold">Welcome, {playerName}</h1>
+        <button
+          onClick={createLobby}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Create Lobby
+        </button>
+        <div>
+          <h2 className="font-semibold mb-2">Open Lobbies</h2>
+          <ul className="space-y-2">
+            {lobbies.map(l => (
+              <li key={l.id} className="flex items-center gap-2">
+                <span>{l.hostName} ({l.players.length}/4)</span>
+                <button
+                  onClick={() => joinLobby(l.id)}
+                  className="px-2 py-1 bg-blue-500 text-white rounded"
+                >
+                  Join
+                </button>
+              </li>
+            ))}
+            {lobbies.length === 0 && <li>No open lobbies</li>}
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentLobby && !currentLobby.started) {
+    return (
+      <div className="container mx-auto p-4 space-y-4">
+        <h1 className="text-2xl font-bold">Lobby</h1>
+        <div>Players: {currentLobby.players.join(', ')}</div>
+        {currentLobby.hostId === socket.id ? (
+          <button
+            onClick={startGame}
+            disabled={currentLobby.players.length < 2}
+            className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+          >
+            Start Game
+          </button>
+        ) : (
+          <div>Waiting for {currentLobby.hostName} to start the game...</div>
+        )}
       </div>
     );
   }
