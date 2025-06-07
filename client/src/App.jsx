@@ -76,6 +76,7 @@ export default function App() {
   const [hand, setHand] = useState([]);
   const [state, setState] = useState(null);
   const [selected, setSelected] = useState([]);
+  const [hovered, setHovered] = useState(null);
   const [playerName, setPlayerName] = useState('');
   const [rankings, setRankings] = useState(null);
   const rankingsRef = useRef(rankings);
@@ -438,20 +439,23 @@ export default function App() {
                     {hand.map((c,i) => {
                       const angle = (i - (hand.length - 1) / 2) * 12;
                       const tilt = -angle * 0.4;
-                      const shift = (i - (hand.length - 1) / 2) * 6;
+                      const shift = (i - (hand.length - 1) / 2) * 40;
                       const drop = Math.abs(angle) * 2;
-                      const selectedClass = selected.includes(i) ? '-translate-y-8' : '';
+                      const isSelected = selected.includes(i);
+                      const isHovered = hovered === i;
+                      const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
                       return (
                         <motion.img
                           key={i}
                           src={cardImageUrl(c)}
                           alt={cardDisplay(c)}
                           onClick={() => toggleCard(i)}
-                          whileHover={{ translateY: -16 }}
-                          className={`w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${selectedClass}`}
+                          onMouseEnter={() => setHovered(i)}
+                          onMouseLeave={() => setHovered(null)}
+                          className={`w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
                           style={{
-                            transform: `translate(-50%,-${drop}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
-                            left: `calc(50% + ${shift}%)`
+                            transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
+                            left: `calc(50% + ${shift}px)`
                           }}
                         />
                       );
