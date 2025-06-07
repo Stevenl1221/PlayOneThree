@@ -390,18 +390,17 @@ export default function App() {
   }
 
   return (
-    <div className="p-4 text-white">
+    <div className="relative min-h-screen p-4 text-white overflow-hidden">
       <h1 className="text-3xl font-bold text-center mb-2">Thirteen Game</h1>
-      <div className="text-center mb-4">Current turn: {state?.currentTurn}</div>
+      <div className="text-center mb-4">
+        <span className="inline-block bg-white/80 text-black px-2 py-1 rounded">
+          Current turn: {state?.currentTurn}
+        </span>
+      </div>
 
       {state && (
         <>
         <div className="relative mx-auto w-full max-w-md sm:max-w-lg md:max-w-4xl h-[22rem] sm:h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
-          {state.lastPlay && (
-            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-black bg-white/80 px-2 py-1 rounded">
-              Played by {state.lastPlay.player}
-            </div>
-          )}
           <img src={CARD_BACK} alt="Deck" className="absolute w-16 left-4 top-1/2 -translate-y-1/2" />
           {state.lastPlay && (
             state.lastPlay.cards.slice(-4).map((c, i, arr) => (
@@ -436,7 +435,7 @@ export default function App() {
                       <img
                         src={CARD_BACK}
                         alt=""
-                        className={`${isMobile ? 'w-8' : 'w-12'}`}
+                        className={`${isMobile ? 'w-6' : 'w-12'}`}
                       />
                       <div className="absolute -top-2 -right-2 w-5 h-5 text-xs bg-yellow-400 rounded-full flex items-center justify-center">
                         {p.handCount}
@@ -449,7 +448,7 @@ export default function App() {
                     {hand.map((c,i) => {
                       const angle = (i - (hand.length - 1) / 2) * 8;
                       const tilt = -angle * 0.3;
-                      const spacing = isMobile ? 20 : 32;
+                      const spacing = isMobile ? 16 : 32;
                       const shift = (i - (hand.length - 1) / 2) * spacing;
                       const drop = Math.abs(angle) * 1.2;
                       const isSelected = selected.includes(i);
@@ -463,7 +462,7 @@ export default function App() {
                           onClick={() => toggleCard(i)}
                           onMouseEnter={() => setHovered(i)}
                           onMouseLeave={() => setHovered(null)}
-                          className={`w-20 sm:w-24 md:w-28 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
+                          className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
                           style={{
                             transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                             left: `calc(50% + ${shift}px)`
