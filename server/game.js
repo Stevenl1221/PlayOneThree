@@ -111,11 +111,12 @@ function isBomb(play, prev) {
 }
 
 class Player {
-  constructor(socket, name) {
+  constructor(socket, name, spectator = false) {
     this.socket = socket;
     this.name = name;
     this.hand = [];
     this.finished = false;
+    this.spectator = spectator;
   }
 }
 
@@ -135,13 +136,14 @@ class Game {
     this.autoStart = autoStart;
   }
 
-  addPlayer(socket, name) {
-    if (this.players.length >= 4) return;
-    const player = new Player(socket, name || `Player${this.players.length+1}`);
+  addPlayer(socket, name, spectator = false) {
+    if (!spectator && this.players.filter(p => !p.spectator).length >= 4) return;
+    const player = new Player(socket, name || `Player${this.players.length+1}`, spectator);
     this.players.push(player);
-    socket.emit('joined', {name: player.name});
+    socket.emit('joined', {name: player.name, spectator});
     this.broadcastState();
-    if (this.autoStart && !this.gameActive && !this.waitingForReady && this.players.length >= 2) {
+    if (!spectator && this.autoStart && !this.gameActive && !this.waitingForReady &&
+        this.players.filter(p => !p.spectator).length >= 2) {
       this.start();
     }
   }
@@ -171,19 +173,30 @@ class Game {
     this.ready.clear();
     this.gameActive = true;
     this.waitingForReady = false;
-    this.activePlayers = [...this.players];
-    for (let i = 0; i < this.players.length; i++) {
-      const p = this.players[i];
-      p.hand = deck.slice(i * 13, (i + 1) * 13);
-      p.finished = false;
-      p.socket.emit('start', { hand: p.hand });
-      p.socket.emit('hand', { hand: p.hand });
+
+    let playerIndex = 0;
+    for (const p of this.players) {
+      if (p.spectator && playerIndex < 4) {
+        p.spectator = false;
+      }
+      if (!p.spectator && playerIndex < 4) {
+        p.hand = deck.slice(playerIndex * 13, (playerIndex + 1) * 13);
+        p.finished = false;
+        p.socket.emit('start', { hand: p.hand });
+        p.socket.emit('hand', { hand: p.hand });
+        playerIndex++;
+      } else {
+        p.hand = [];
+        p.socket.emit('hand', { hand: p.hand });
+      }
     }
+
+    this.activePlayers = this.players.filter(p => !p.spectator).slice(0, 4);
 
     // determine starting player (lowest card)
     let lowPlayer = 0;
-    let lowCard = this.players[0].hand[0];
-    this.players.forEach((p, idx) => {
+    let lowCard = this.activePlayers[0].hand[0];
+    this.activePlayers.forEach((p, idx) => {
       p.hand.forEach(c => {
         if (cardCompare(c, lowCard) < 0) {
           lowCard = c;
@@ -202,7 +215,7 @@ class Game {
 
   playCards(socket, cards) {
     const player = this.players.find(p => p.socket === socket);
-    if (!player) return;
+    if (!player || player.spectator) return;
     if (!this.isPlayerTurn(player)) return;
 
     const play = this.validatePlay(cards);
@@ -248,7 +261,7 @@ class Game {
 
   pass(socket) {
     const player = this.players.find(p => p.socket === socket);
-    if (!player || !this.isPlayerTurn(player)) return;
+    if (!player || player.spectator || !this.isPlayerTurn(player)) return;
     this.passCount++;
     const nextIndex = (this.turnIndex + 1) % this.activePlayers.length;
 

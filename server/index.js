@@ -67,8 +67,12 @@ io.on('connection', socket => {
   socket.on('joinLobby', id => {
     const lobby = lobbies.get(id);
     if (!lobby) return;
-    if (lobby.game.gameActive || lobby.game.players.length >= 4) return;
-    lobby.game.addPlayer(socket, socket.data.name);
+    if (lobby.game.gameActive) {
+      lobby.game.addPlayer(socket, socket.data.name, true);
+    } else {
+      if (lobby.game.players.filter(p => !p.spectator).length >= 4) return;
+      lobby.game.addPlayer(socket, socket.data.name);
+    }
     socket.data.lobbyId = id;
     broadcastLobbyList();
     updateLobbyInfo(lobby);
