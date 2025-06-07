@@ -85,10 +85,11 @@ export default function App() {
   const [nameInput, setNameInput] = useState('');
   const [lobbies, setLobbies] = useState([]);
   const [currentLobby, setCurrentLobby] = useState(null);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+  // Treat widths up to 430px (iPhone 13 Pro) as mobile
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 430);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    const handleResize = () => setIsMobile(window.innerWidth <= 430);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -394,6 +395,7 @@ export default function App() {
       <div className="text-center mb-4">You are: {playerName}</div>
 
       {state && (
+        <>
         <div className="relative mx-auto w-full max-w-md sm:max-w-lg md:max-w-4xl h-[22rem] sm:h-[28rem] md:h-[32rem] rounded-full bg-gradient-to-b from-orange-600 via-red-500 to-orange-400 shadow-inner">
           <div className="absolute top-2 left-1/2 -translate-x-1/2 text-black font-semibold bg-white/80 px-2 py-1 rounded">
             Current turn: {state.currentTurn}
@@ -474,38 +476,40 @@ export default function App() {
             );
           })}
         </div>
-      )}
-
-      <div className="fixed right-2 bottom-2 sm:bottom-auto sm:right-4 sm:top-1/2 sm:-translate-y-1/2 flex flex-col items-center gap-4">
-        <div className="flex flex-col gap-2">
+        <div
+          className={`absolute z-30 ${isMobile ? 'left-1/2 -translate-x-1/2 bottom-0 translate-y-full' : 'right-2 bottom-2'} flex flex-col items-center`}
+        >
+          <div className={`flex ${isMobile ? 'flex-row gap-2' : 'flex-col gap-2'}`}>
+            <button
+              onClick={playSelected}
+              disabled={!myTurn || selected.length === 0}
+              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+            >
+              Play
+            </button>
+            <button
+              onClick={pass}
+              disabled={!myTurn}
+              className="px-4 py-2 bg-gray-300 text-black rounded disabled:opacity-50"
+            >
+              Pass
+            </button>
+            <button
+              onClick={sortHand}
+              className="px-4 py-2 bg-green-500 text-white rounded"
+            >
+              Sort
+            </button>
+          </div>
           <button
-            onClick={playSelected}
-            disabled={!myTurn || selected.length === 0}
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+            onClick={leaveLobby}
+            className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
           >
-            Play
-          </button>
-          <button
-            onClick={pass}
-            disabled={!myTurn}
-            className="px-4 py-2 bg-gray-300 text-black rounded disabled:opacity-50"
-          >
-            Pass
-          </button>
-          <button
-            onClick={sortHand}
-            className="px-4 py-2 bg-green-500 text-white rounded"
-          >
-            Sort
+            Leave
           </button>
         </div>
-        <button
-          onClick={leaveLobby}
-          className="px-4 py-2 bg-red-500 text-white rounded"
-        >
-          Leave
-        </button>
-      </div>
+        </>
+      )}
       {state && (
         <div className="fixed bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-2 text-white">
           <div
