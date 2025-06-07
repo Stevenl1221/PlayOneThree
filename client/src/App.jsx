@@ -437,10 +437,10 @@ export default function App() {
                 {pos === 'bottom' && (
                   <div className="relative h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 12;
-                      const tilt = -angle * 0.4;
-                      const shift = (i - (hand.length - 1) / 2) * 40;
-                      const drop = Math.abs(angle) * 2;
+                      const angle = (i - (hand.length - 1) / 2) * 8;
+                      const tilt = -angle * 0.3;
+                      const shift = (i - (hand.length - 1) / 2) * 32;
+                      const drop = Math.abs(angle) * 1.2;
                       const isSelected = selected.includes(i);
                       const isHovered = hovered === i;
                       const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
@@ -468,8 +468,8 @@ export default function App() {
         </div>
       )}
 
-      <div className="mt-4 flex flex-col items-center gap-4">
-        <div className="flex gap-2">
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
+        <div className="flex flex-col gap-2">
           <button
             onClick={playSelected}
             disabled={!myTurn || selected.length === 0}
