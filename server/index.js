@@ -28,6 +28,10 @@ io.on('connection', (socket) => {
     game.pass(socket);
   });
 
+  socket.on('ready', () => {
+    game.readyUp(socket);
+  });
+
   socket.on('disconnect', () => {
     game.removePlayer(socket);
   });
