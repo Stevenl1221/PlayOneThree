@@ -435,7 +435,7 @@ export default function App() {
                       <img
                         src={CARD_BACK}
                         alt=""
-                        className={`${isMobile ? 'w-6' : 'w-12'}`}
+                        className={`${isMobile ? 'w-6' : 'w-12'} rounded-sm bg-white`}
                       />
                       <div className="absolute -top-2 -right-2 w-5 h-5 text-xs bg-yellow-400 rounded-full flex items-center justify-center">
                         {p.handCount}
