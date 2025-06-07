@@ -108,6 +108,12 @@ export default function App() {
         setLastWinner(rankings[0]);
       }
     });
+    socket.on('returnToLobby', () => {
+      setRankings(null);
+      setState(null);
+      setHand([]);
+      setSelected([]);
+    });
     return () => {
       socket.disconnect();
     };
@@ -194,10 +200,10 @@ export default function App() {
         </ol>
         {currentLobby && currentLobby.hostId === socket.id && (
           <button
-            onClick={startGame}
+            onClick={() => socket.emit('returnToLobby')}
             className="px-4 py-2 bg-green-500 text-white rounded"
           >
-            Start New Game
+            Play Again
           </button>
         )}
         {currentLobby && (
