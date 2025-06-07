@@ -440,10 +440,11 @@ export default function App() {
                   )}
                 </div>
                 {pos === 'bottom' && (
-                  <div className="relative h-40 mt-2 flex items-end justify-center overflow-x-auto w-full z-20" style={{ perspective: '800px' }}>
+                  <div className="relative h-48 mt-2 flex items-end justify-center overflow-x-auto w-full z-20" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 10;
-                      const tilt = -angle * 0.5;
+                      const angle = (i - (hand.length - 1) / 2) * 12;
+                      const tilt = -angle * 0.4;
+                      const shift = (i - (hand.length - 1) / 2) * 8;
                       const selectedClass = selected.includes(i) ? '-translate-y-8' : '';
                       return (
                         <motion.img
@@ -452,10 +453,10 @@ export default function App() {
                           alt={cardDisplay(c)}
                           onClick={() => toggleCard(i)}
                           whileHover={{ translateY: -16 }}
-                          className={`w-20 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 ${selectedClass}`}
+                          className={`w-24 absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${selectedClass}`}
                           style={{
                             transform: `translate(-50%,0) rotateY(${tilt}deg) rotate(${angle}deg)`,
-                            left: `${((i+1)/(hand.length+1))*100}%`
+                            left: `calc(50% + ${shift}%)`
                           }}
                         />
                       );
