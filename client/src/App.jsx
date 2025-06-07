@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 
 const socket = io(
   import.meta.env.PROD
-    ? 'https://playonethree-1.onrender.com'
+    ? 'https://playonethree.onrender.com'
     : 'http://localhost:3001'
 );
 
