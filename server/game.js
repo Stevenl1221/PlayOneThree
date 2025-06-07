@@ -192,17 +192,11 @@ class Game {
       });
     });
 
-    // remove lowest card from that player's hand and start the pile
-    const lpHand = this.players[lowPlayer].hand;
-    const remIdx = lpHand.findIndex(c => c.rank === lowCard.rank && c.suit === lowCard.suit);
-    lpHand.splice(remIdx, 1);
-    this.currentSet = { cards: [lowCard], player: this.players[lowPlayer].name, type: 'single', highest: lowCard };
-    this.lastPlayIndex = lowPlayer;
-    this.turnIndex = (lowPlayer + 1) % this.activePlayers.length;
+    // allow starting player to choose any combination, do not auto-play lowest card
+    this.currentSet = null;
+    this.lastPlayIndex = null;
+    this.turnIndex = lowPlayer;
     this.passCount = 0;
-
-    // send updated hand for starting player
-    this.players[lowPlayer].socket.emit('hand', { hand: lpHand });
     this.broadcastState();
   }
 
