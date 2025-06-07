@@ -49,6 +49,7 @@ function highestCard(cards) {
 
 function isSequence(cards) {
   if (cards.length < 3) return false;
+  if (cards.some(c => c.rank === '2')) return false;
   for (let i = 1; i < cards.length; i++) {
     if (compareRank(cards[i].rank, cards[i - 1].rank) !== 1) return false;
   }
@@ -57,6 +58,7 @@ function isSequence(cards) {
 
 function isDoubleSequence(cards) {
   if (cards.length < 6 || cards.length % 2 !== 0) return false;
+  if (cards.some(c => c.rank === '2')) return false;
   for (let i = 0; i < cards.length; i += 2) {
     if (cards[i].rank !== cards[i + 1].rank) return false;
     if (i >= 2 && compareRank(cards[i].rank, cards[i - 2].rank) !== 1) return false;
