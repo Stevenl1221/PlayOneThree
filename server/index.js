@@ -100,6 +100,30 @@ io.on('connection', socket => {
     if (lobby) lobby.game.readyUp(socket);
   });
 
+  socket.on('leaveLobby', () => {
+    const id = socket.data.lobbyId;
+    if (!id) return;
+    const lobby = lobbies.get(id);
+    if (!lobby) return;
+    lobby.game.removePlayer(socket);
+    socket.data.lobbyId = null;
+    if (lobby.host === socket.id) {
+      if (lobby.game.players.length > 0) {
+        lobby.host = lobby.game.players[0].socket.id;
+        lobby.hostName = lobby.game.players[0].name;
+      } else {
+        lobbies.delete(id);
+        broadcastLobbyList();
+        return;
+      }
+    }
+    if (lobby.game.players.length === 0) {
+      lobbies.delete(id);
+    }
+    broadcastLobbyList();
+    if (lobbies.has(id)) updateLobbyInfo(lobby);
+  });
+
   socket.on('disconnect', () => {
     const id = socket.data.lobbyId;
     if (!id) return;
