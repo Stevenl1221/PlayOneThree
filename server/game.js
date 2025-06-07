@@ -52,6 +52,8 @@ class Game {
     this.turnIndex = 0;
     this.currentSet = null; // last played set
     this.pile = [];
+    this.passCount = 0; // number of consecutive passes
+    this.lastPlayIndex = null; // index of player who last played
   }
 
   addPlayer(socket, name) {
@@ -80,6 +82,8 @@ class Game {
     }
     this.turnIndex = 0;
     this.currentSet = null;
+    this.passCount = 0;
+    this.lastPlayIndex = null;
     this.broadcastState();
   }
 
@@ -99,6 +103,8 @@ class Game {
       if (idx !== -1) player.hand.splice(idx,1);
     });
     this.currentSet = {cards, player: player.name};
+    this.lastPlayIndex = this.turnIndex;
+    this.passCount = 0;
     this.turnIndex = (this.turnIndex + 1) % this.players.length;
     this.broadcastState();
 
@@ -110,7 +116,21 @@ class Game {
   pass(socket) {
     const player = this.players.find(p => p.socket === socket);
     if (!player || !this.isPlayerTurn(player)) return;
-    this.turnIndex = (this.turnIndex + 1) % this.players.length;
+    this.passCount++;
+    const nextIndex = (this.turnIndex + 1) % this.players.length;
+
+    if (!this.currentSet) {
+      this.turnIndex = nextIndex;
+      this.passCount = 0;
+    } else if (this.passCount >= this.players.length - 1) {
+      // Everyone passed - clear current set and give turn to last winner
+      this.currentSet = null;
+      this.passCount = 0;
+      this.turnIndex = this.lastPlayIndex;
+    } else {
+      this.turnIndex = nextIndex;
+    }
+
     this.broadcastState();
   }
 
