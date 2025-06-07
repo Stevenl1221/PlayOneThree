@@ -440,7 +440,7 @@ export default function App() {
                   )}
                 </div>
                 {pos === 'bottom' && (
-                  <div className="relative h-40 mt-2 flex items-end justify-center overflow-x-auto" style={{ perspective: '800px' }}>
+                  <div className="relative h-40 mt-2 flex items-end justify-center overflow-x-auto w-full z-20" style={{ perspective: '800px' }}>
                     {hand.map((c,i) => {
                       const angle = (i - (hand.length - 1) / 2) * 10;
                       const tilt = -angle * 0.5;
