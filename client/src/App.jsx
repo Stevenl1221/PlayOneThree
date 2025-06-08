@@ -92,6 +92,7 @@ export default function App() {
   const [sortTrigger, setSortTrigger] = useState(0);
   // Stage of the sort animation
   const [sortStage, setSortStage] = useState('none');
+  const SORT_DURATION = 800;
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 430);
@@ -209,9 +210,9 @@ export default function App() {
       setSortStage('swap');
       setTimeout(() => {
         setSortStage('drop');
-        setTimeout(() => setSortStage('none'), 600);
-      }, 600);
-    }, 600);
+        setTimeout(() => setSortStage('none'), SORT_DURATION);
+      }, SORT_DURATION);
+    }, SORT_DURATION);
   };
 
   const setName = () => {
@@ -475,7 +476,7 @@ export default function App() {
                 )}
                 {pos === 'bottom' && (
                   <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
-                    <Flipper flipKey={sortTrigger} spring={{ stiffness: 120, damping: 40 }}>
+                    <Flipper flipKey={sortTrigger} spring="noWobble">
                       {hand.map((c,i) => {
                         const angle = 0;
                         const tilt = 0;
@@ -500,7 +501,10 @@ export default function App() {
                                 transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                                 left: `calc(50% + ${shift}px)`
                               }}
-                              transition={{ duration: 0.6, ease: 'easeInOut' }}
+                              transition={{
+                                duration: sortStage === 'none' ? 0.2 : SORT_DURATION / 1000,
+                                ease: 'easeInOut'
+                              }}
                             />
                           </Flipped>
                         );
