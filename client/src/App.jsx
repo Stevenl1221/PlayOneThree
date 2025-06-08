@@ -486,13 +486,14 @@ export default function App() {
                         const y = raise - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
                         const id = `${c.rank}${c.suit}`;
                         return (
-                            <motion.img layout
+                            <motion.img layout layoutId={id}
                               key={id}
                               src={cardImageUrl(c)}
                               alt={cardDisplay(c)}
                               onClick={() => toggleCard(i)}
                               onMouseEnter={() => setHovered(i)}
                               onMouseLeave={() => setHovered(null)}
+                              transition={{ type: 'tween', duration: SORT_DURATION / 1000 }}
                               className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
                               style={{
                                 transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
