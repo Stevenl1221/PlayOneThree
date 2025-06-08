@@ -493,14 +493,10 @@ export default function App() {
                               onClick={() => toggleCard(i)}
                               onMouseEnter={() => setHovered(i)}
                               onMouseLeave={() => setHovered(null)}
-                              className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
-                              animate={{
+                              className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
+                              style={{
                                 transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                                 left: `calc(50% + ${shift}px)`
-                              }}
-                              transition={{
-                                duration: sortStage === 'none' ? 0.2 : SORT_DURATION / 1000,
-                                ease: 'easeInOut'
                               }}
                             />
                         );
