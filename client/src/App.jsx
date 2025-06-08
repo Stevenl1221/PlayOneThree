@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, LayoutGroup } from 'framer-motion';
 import { io } from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
@@ -87,6 +87,9 @@ export default function App() {
   const [currentLobby, setCurrentLobby] = useState(null);
   // Treat widths up to 430px (iPhone 13 Pro) as mobile
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 430);
+  // Stage of the sort animation
+  const [sortStage, setSortStage] = useState('none');
+  const SORT_DURATION = 800;
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 430);
@@ -186,7 +189,12 @@ export default function App() {
     setSelected([]);
   };
 
-  const sortHand = () => {
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  const sortHand = async () => {
+    if (sortStage !== 'none') return;
+    setSortStage('raise');
+    await delay(SORT_DURATION);
     setHand(prev => {
       const sorted = [...prev].sort(cardCompare);
       setSelected(sel => {
@@ -197,6 +205,11 @@ export default function App() {
       });
       return sorted;
     });
+    setSortStage('swap');
+    await delay(SORT_DURATION);
+    setSortStage('drop');
+    await delay(SORT_DURATION);
+    setSortStage('none');
   };
 
   const setName = () => {
@@ -460,34 +473,36 @@ export default function App() {
                 )}
                 {pos === 'bottom' && (
                   <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
-                    {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 8;
-                      const tilt = -angle * 0.3;
-                      const spacing = isMobile ? 16 : 32;
-                      const shift = (i - (hand.length - 1) / 2) * spacing;
-                      const drop = Math.abs(angle) * 1.2;
-                      const isSelected = selected.includes(i);
-                      const isHovered = hovered === i;
-                      const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
-                      const id = `${c.rank}${c.suit}`;
-                      return (
-                        <motion.img
-                          key={id}
-                          layout
-                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                          src={cardImageUrl(c)}
-                          alt={cardDisplay(c)}
-                          onClick={() => toggleCard(i)}
-                          onMouseEnter={() => setHovered(i)}
-                          onMouseLeave={() => setHovered(null)}
-                          className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
-                          style={{
-                            transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
-                            left: `calc(50% + ${shift}px)`
-                          }}
-                        />
-                      );
-                    })}
+                    <LayoutGroup>
+                      {hand.map((c,i) => {
+                        const angle = 0;
+                        const tilt = 0;
+                        const baseSpacing = isMobile ? 16 : 32;
+                        const spacing = sortStage === 'raise' || sortStage === 'swap' ? baseSpacing * 2 : baseSpacing;
+                        const shift = (i - (hand.length - 1) / 2) * spacing;
+                        const raise = sortStage === 'raise' || sortStage === 'swap' ? -80 : 0;
+                        const isSelected = selected.includes(i);
+                        const isHovered = hovered === i;
+                        const y = raise - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
+                        const id = `${c.rank}${c.suit}`;
+                        return (
+                            <motion.img layout layoutId={id}
+                              key={id}
+                              src={cardImageUrl(c)}
+                              alt={cardDisplay(c)}
+                              onClick={() => toggleCard(i)}
+                              onMouseEnter={() => setHovered(i)}
+                              onMouseLeave={() => setHovered(null)}
+                              transition={{ type: 'tween', duration: SORT_DURATION / 1000 }}
+                              className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
+                              style={{
+                                transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
+                                left: `calc(50% + ${shift}px)`
+                              }}
+                            />
+                        );
+                      })}
+                    </LayoutGroup>
                   </div>
                 )}
               </div>
