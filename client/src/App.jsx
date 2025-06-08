@@ -90,8 +90,6 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 430);
   // Used to trigger sort animations
   const [sortTrigger, setSortTrigger] = useState(0);
-  // Whether the hand should be displayed in a fanned layout
-  const [fanned, setFanned] = useState(false);
   // Stage of the sort animation
   const [sortStage, setSortStage] = useState('none');
 
@@ -129,7 +127,6 @@ export default function App() {
       setLastWinner(null);
       setHand(hand);
       setSelected([]);
-      setFanned(false);
     });
     socket.on('hand', ({ hand: newHand }) => {
       setHand(prev => {
@@ -211,11 +208,10 @@ export default function App() {
       setSortTrigger(t => t + 1);
       setSortStage('swap');
       setTimeout(() => {
-        setFanned(true);
         setSortStage('drop');
-        setTimeout(() => setSortStage('none'), 400);
-      }, 400);
-    }, 300);
+        setTimeout(() => setSortStage('none'), 600);
+      }, 600);
+    }, 600);
   };
 
   const setName = () => {
@@ -479,18 +475,17 @@ export default function App() {
                 )}
                 {pos === 'bottom' && (
                   <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
-                    <Flipper flipKey={sortTrigger} spring={{ stiffness: 500, damping: 30 }}>
+                    <Flipper flipKey={sortTrigger} spring={{ stiffness: 120, damping: 40 }}>
                       {hand.map((c,i) => {
-                        const angle = fanned ? (i - (hand.length - 1) / 2) * 8 : 0;
-                        const tilt = fanned ? -angle * 0.3 : 0;
+                        const angle = 0;
+                        const tilt = 0;
                         const baseSpacing = isMobile ? 16 : 32;
                         const spacing = sortStage === 'raise' || sortStage === 'swap' ? baseSpacing * 2 : baseSpacing;
                         const shift = (i - (hand.length - 1) / 2) * spacing;
-                        const drop = fanned ? Math.abs(angle) * 1.2 : 0;
                         const raise = sortStage === 'raise' || sortStage === 'swap' ? -80 : 0;
                         const isSelected = selected.includes(i);
                         const isHovered = hovered === i;
-                        const y = raise + drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
+                        const y = raise - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
                         const id = `${c.rank}${c.suit}`;
                         return (
                           <Flipped key={id} flipId={id}>
@@ -505,7 +500,7 @@ export default function App() {
                                 transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                                 left: `calc(50% + ${shift}px)`
                               }}
-                              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                              transition={{ duration: 0.6, ease: 'easeInOut' }}
                             />
                           </Flipped>
                         );
