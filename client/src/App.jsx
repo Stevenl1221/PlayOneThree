@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Flipper, Flipped } from 'react-flip-toolkit';
 import { io } from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
@@ -87,6 +88,8 @@ export default function App() {
   const [currentLobby, setCurrentLobby] = useState(null);
   // Treat widths up to 430px (iPhone 13 Pro) as mobile
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 430);
+  // Used to trigger sort animations
+  const [sortTrigger, setSortTrigger] = useState(0);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 430);
@@ -197,6 +200,7 @@ export default function App() {
       });
       return sorted;
     });
+    setSortTrigger(t => t + 1);
   };
 
   const setName = () => {
@@ -460,31 +464,35 @@ export default function App() {
                 )}
                 {pos === 'bottom' && (
                   <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
-                    {hand.map((c,i) => {
-                      const angle = (i - (hand.length - 1) / 2) * 8;
-                      const tilt = -angle * 0.3;
-                      const spacing = isMobile ? 16 : 32;
-                      const shift = (i - (hand.length - 1) / 2) * spacing;
-                      const drop = Math.abs(angle) * 1.2;
-                      const isSelected = selected.includes(i);
-                      const isHovered = hovered === i;
-                      const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
-                      return (
-                        <motion.img
-                          key={i}
-                          src={cardImageUrl(c)}
-                          alt={cardDisplay(c)}
-                          onClick={() => toggleCard(i)}
-                          onMouseEnter={() => setHovered(i)}
-                          onMouseLeave={() => setHovered(null)}
-                          className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
-                          style={{
-                            transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
-                            left: `calc(50% + ${shift}px)`
-                          }}
-                        />
-                      );
-                    })}
+                    <Flipper flipKey={sortTrigger} spring={{ stiffness: 500, damping: 30 }}>
+                      {hand.map((c,i) => {
+                        const angle = (i - (hand.length - 1) / 2) * 8;
+                        const tilt = -angle * 0.3;
+                        const spacing = isMobile ? 16 : 32;
+                        const shift = (i - (hand.length - 1) / 2) * spacing;
+                        const drop = Math.abs(angle) * 1.2;
+                        const isSelected = selected.includes(i);
+                        const isHovered = hovered === i;
+                        const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
+                        const id = `${c.rank}${c.suit}`;
+                        return (
+                          <Flipped key={id} flipId={id}>
+                            <motion.img
+                              src={cardImageUrl(c)}
+                              alt={cardDisplay(c)}
+                              onClick={() => toggleCard(i)}
+                              onMouseEnter={() => setHovered(i)}
+                              onMouseLeave={() => setHovered(null)}
+                              className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
+                              style={{
+                                transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
+                                left: `calc(50% + ${shift}px)`
+                              }}
+                            />
+                          </Flipped>
+                        );
+                      })}
+                    </Flipper>
                   </div>
                 )}
               </div>
