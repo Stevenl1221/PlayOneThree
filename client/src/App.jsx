@@ -90,6 +90,8 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 430);
   // Used to trigger sort animations
   const [sortTrigger, setSortTrigger] = useState(0);
+  // Whether the hand should be displayed in a fanned layout
+  const [fanned, setFanned] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 430);
@@ -125,6 +127,7 @@ export default function App() {
       setLastWinner(null);
       setHand(hand);
       setSelected([]);
+      setFanned(false);
     });
     socket.on('hand', ({ hand: newHand }) => {
       setHand(prev => {
@@ -201,6 +204,7 @@ export default function App() {
       return sorted;
     });
     setSortTrigger(t => t + 1);
+    setFanned(true);
   };
 
   const setName = () => {
@@ -466,11 +470,11 @@ export default function App() {
                   <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
                     <Flipper flipKey={sortTrigger} spring={{ stiffness: 500, damping: 30 }}>
                       {hand.map((c,i) => {
-                        const angle = (i - (hand.length - 1) / 2) * 8;
-                        const tilt = -angle * 0.3;
+                        const angle = fanned ? (i - (hand.length - 1) / 2) * 8 : 0;
+                        const tilt = fanned ? -angle * 0.3 : 0;
                         const spacing = isMobile ? 16 : 32;
                         const shift = (i - (hand.length - 1) / 2) * spacing;
-                        const drop = Math.abs(angle) * 1.2;
+                        const drop = fanned ? Math.abs(angle) * 1.2 : 0;
                         const isSelected = selected.includes(i);
                         const isHovered = hovered === i;
                         const y = drop - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
