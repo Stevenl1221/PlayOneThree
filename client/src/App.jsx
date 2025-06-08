@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Flipper, Flipped } from 'react-flip-toolkit';
+import { motion, LayoutGroup } from 'framer-motion';
 import { io } from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
@@ -88,8 +87,6 @@ export default function App() {
   const [currentLobby, setCurrentLobby] = useState(null);
   // Treat widths up to 430px (iPhone 13 Pro) as mobile
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 430);
-  // Used to trigger sort animations
-  const [sortTrigger, setSortTrigger] = useState(0);
   // Stage of the sort animation
   const [sortStage, setSortStage] = useState('none');
   const SORT_DURATION = 800;
@@ -192,27 +189,27 @@ export default function App() {
     setSelected([]);
   };
 
-  const sortHand = () => {
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  const sortHand = async () => {
     if (sortStage !== 'none') return;
     setSortStage('raise');
-    setTimeout(() => {
-      setHand(prev => {
-        const sorted = [...prev].sort(cardCompare);
-        setSelected(sel => {
-          const selectedCards = sel.map(i => prev[i]);
-          return selectedCards.map(card =>
-            sorted.findIndex(c => c.rank === card.rank && c.suit === card.suit)
-          );
-        });
-        return sorted;
+    await delay(SORT_DURATION);
+    setHand(prev => {
+      const sorted = [...prev].sort(cardCompare);
+      setSelected(sel => {
+        const selectedCards = sel.map(i => prev[i]);
+        return selectedCards.map(card =>
+          sorted.findIndex(c => c.rank === card.rank && c.suit === card.suit)
+        );
       });
-      setSortTrigger(t => t + 1);
-      setSortStage('swap');
-      setTimeout(() => {
-        setSortStage('drop');
-        setTimeout(() => setSortStage('none'), SORT_DURATION);
-      }, SORT_DURATION);
-    }, SORT_DURATION);
+      return sorted;
+    });
+    setSortStage('swap');
+    await delay(SORT_DURATION);
+    setSortStage('drop');
+    await delay(SORT_DURATION);
+    setSortStage('none');
   };
 
   const setName = () => {
@@ -476,7 +473,7 @@ export default function App() {
                 )}
                 {pos === 'bottom' && (
                   <div className="relative h-40 sm:h-56 mt-2 flex items-end justify-center w-full z-20" style={{ perspective: '800px' }}>
-                    <Flipper flipKey={sortTrigger} spring="noWobble">
+                    <LayoutGroup>
                       {hand.map((c,i) => {
                         const angle = 0;
                         const tilt = 0;
@@ -489,14 +486,14 @@ export default function App() {
                         const y = raise - (isSelected ? 32 : 0) - (isHovered ? 8 : 0);
                         const id = `${c.rank}${c.suit}`;
                         return (
-                          <Flipped key={id} flipId={id}>
-                            <motion.img
+                            <motion.img layout
+                              key={id}
                               src={cardImageUrl(c)}
                               alt={cardDisplay(c)}
                               onClick={() => toggleCard(i)}
                               onMouseEnter={() => setHovered(i)}
                               onMouseLeave={() => setHovered(null)}
-                              className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute transition-transform drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
+                              className={`${isMobile ? 'w-16' : 'w-20 sm:w-24 md:w-28'} absolute drop-shadow-lg cursor-pointer bottom-0 rounded-sm bg-white ${isSelected ? 'border-4 border-yellow-300' : ''}`}
                               animate={{
                                 transform: `translate(-50%, ${y}px) rotateY(${tilt}deg) rotate(${angle}deg)`,
                                 left: `calc(50% + ${shift}px)`
@@ -506,10 +503,9 @@ export default function App() {
                                 ease: 'easeInOut'
                               }}
                             />
-                          </Flipped>
                         );
                       })}
-                    </Flipper>
+                    </LayoutGroup>
                   </div>
                 )}
               </div>
